@@ -13,6 +13,7 @@ type Server struct {
 	g *gin.Engine
 
 	DiscoveryService DiscoveryService
+	TorrentService   TorrentService
 }
 
 func (s *Server) Run(host string, port uint16) error {
@@ -34,6 +35,7 @@ func (s *Server) Run(host string, port uint16) error {
 		ctx.Redirect(http.StatusFound, "/search")
 	})
 	s.g.GET("/search", s.searchHandler)
+	s.g.GET("/add/:id", s.addHandler)
 
 	return s.g.Run(fmt.Sprintf("%s:%d", host, port))
 }
