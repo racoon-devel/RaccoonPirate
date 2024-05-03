@@ -1,0 +1,38 @@
+{{ template "header" . }}
+<div style="text-align: center;">
+    <h1>Поиск</h1>
+    <form id="search" action="/search" method="get">
+        <img src="/img/multimedia.png" width="200"/>
+        <br><br>
+        <input type="text" placeholder="Поиск..." name="q" value="{{ .Query }}">
+    </form>
+    <table style="border-spacing: 10px;">
+        {{range $i, $m := $.Movies}}
+            <tr>
+                <td><img src="{{$m.Info.Poster}}" alt="{{$m.Info.Title}}" width="200"/></td>
+                <td valign="top" style="text-align: left">
+                    <p>
+                        <a href="https://www.imdb.com/title/{{$m.Id}}"><b>{{$m.Info.Title}}</b></a><br>
+                        <br>
+                        <b>Год: </b> {{$m.Info.Year}}<br>
+                        <b>Жанр: </b> {{$m.Info.Genres}}<br>
+                        <b>Описание: </b><i>{{$m.Info.Description}}</i><br>
+                        <a href="/multimedia/download/{{$m.Id}}">
+                            <button>Скачать</button>
+                        </a>
+                        <a href="/multimedia/download/{{$m.Id}}?fast=true">
+                            <button>Скачать быстро</button>
+                        </a>
+                        <a href="/multimedia/download/{{$m.Id}}?select=true">
+                            <button>Выбрать раздачу</button>
+                        </a>
+                        <a href="/multimedia/upload?id={{$m.Id}}">
+                            <button>Загрузить файл</button>
+                        </a>
+                    </p>
+                </td>
+            </tr>
+        {{ end }}
+    </table>
+</div>
+{{ template "footer" }}

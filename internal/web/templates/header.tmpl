@@ -1,0 +1,22 @@
+{{ define "header" }}
+<html>
+    <head>
+        <title>MediaStation</title>
+        <link rel="stylesheet" href="/css/style.css"/>
+        <link rel="stylesheet" href="/css/menu.css"/>
+        <link rel="stylesheet" href="/css/search.css"/>
+        <link rel="stylesheet" href="/css/table.css"/>
+        {{if ne $.Redirect ""}}
+            <meta http-equiv="refresh" content="1;url={{$.Redirect}}"/>
+        {{end}}
+    </head>
+    <body>
+    <nav>
+        <ul>
+            <li><a href="/search">Поиск</a></li>
+            <li><a href="/upload">Загрузка</a></li>
+        </ul>
+    </nav>
+    <br><br><br>
+    <div class="content">
+{{ end }}
