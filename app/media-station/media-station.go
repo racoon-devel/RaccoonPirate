@@ -4,6 +4,7 @@ import (
 	"flag"
 	"github.com/apex/log"
 	"github.com/racoon-devel/media-station/internal/config"
+	"github.com/racoon-devel/media-station/internal/discovery"
 	"github.com/racoon-devel/media-station/internal/web"
 )
 
@@ -27,7 +28,9 @@ func main() {
 	}
 	log.Debugf("Config: %+v", conf)
 
-	server := web.Server{}
+	server := web.Server{
+		DiscoveryService: discovery.NewService(conf.Discovery),
+	}
 	if err = server.Run(conf.Http.Host, conf.Http.Port); err != nil {
 		log.Fatalf("Run web server failed: %s", err)
 	}

@@ -6,12 +6,21 @@ import (
 )
 
 type Config struct {
-	Http Http
+	Http      Http
+	Discovery Discovery
 }
 
 type Http struct {
 	Host string
 	Port uint16
+}
+
+type Discovery struct {
+	Identity string
+	Scheme   string
+	Host     string
+	Port     uint16
+	Path     string
 }
 
 func Load(destination string) (Config, error) {

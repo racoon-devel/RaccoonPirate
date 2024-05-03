@@ -11,6 +11,8 @@ import (
 type Server struct {
 	l *log.Entry
 	g *gin.Engine
+
+	DiscoveryService DiscoveryService
 }
 
 func (s *Server) Run(host string, port uint16) error {
