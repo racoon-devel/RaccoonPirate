@@ -1,8 +1,6 @@
 {{ template "header" . }}
 <h1>Выбор сезона</h1>
-<form action="/download/{{.Id}}" method="get">
-    <input type="radio" id="all" name="season" value="all" checked/>
-    <label for="all">Все</label>
+<form action="/add/{{.ID}}" method="get">
     <br>
     {{ range $i, $season := $.Seasons }}
         <input type="radio" id="season_{{$season}}" name="season" value="{{$season}}"/>

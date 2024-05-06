@@ -8,7 +8,7 @@
     </tr>
     {{range $i, $t := .Torrents}}
         <tr>
-            <td><a href="/multimedia/download/{{$.Id}}?torrent={{$t.Id}}&fast={{$.Fast}}&select={{$.Select}}">{{ $t.Title }}</a></td>
+            <td><a href="/add/{{$.ID}}?torrent={{$t.Link}}&select={{$.Select}}">{{ $t.Title }}</a></td>
             <td>{{$t.Size}}</td>
             <td>{{$t.Seeders}}</td>
         </tr>

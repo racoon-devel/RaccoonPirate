@@ -3,21 +3,16 @@ package discovery
 import (
 	"bytes"
 	"context"
-	"errors"
 	"github.com/RacoonMediaServer/rms-media-discovery/pkg/client/client/torrents"
 	"github.com/RacoonMediaServer/rms-media-discovery/pkg/client/models"
+	"github.com/RacoonMediaServer/rms-media-discovery/pkg/model"
 )
 
 func asPtr[T any](val T) *T {
 	return &val
 }
 
-func (s *Service) SearchTorrents(ctx context.Context, id string, season *int64) ([]*models.SearchTorrentsResult, error) {
-	mov, ok := s.movieFromCache(id)
-	if !ok {
-		return nil, errors.New("movie not found in the cache")
-	}
-
+func (s *Service) SearchTorrents(ctx context.Context, mov *model.Movie, season *int64) ([]*models.SearchTorrentsResult, error) {
 	year := int64(mov.Year)
 
 	req := torrents.SearchTorrentsParams{

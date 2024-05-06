@@ -6,12 +6,13 @@ import (
 	"github.com/gin-gonic/gin"
 	"html/template"
 	"net/http"
+	"sync"
 )
 
 type Server struct {
-	l *log.Entry
-	g *gin.Engine
-
+	l                *log.Entry
+	g                *gin.Engine
+	cache            sync.Map
 	DiscoveryService DiscoveryService
 	TorrentService   TorrentService
 }

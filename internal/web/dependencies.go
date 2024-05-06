@@ -8,8 +8,7 @@ import (
 
 type DiscoveryService interface {
 	SearchMovies(ctx context.Context, q string) ([]*model.Movie, error)
-	SearchTorrents(ctx context.Context, id string, season *int64) ([]*models.SearchTorrentsResult, error)
-	GetSeasonsCount(id string) uint
+	SearchTorrents(ctx context.Context, mov *model.Movie, season *int64) ([]*models.SearchTorrentsResult, error)
 	GetTorrent(ctx context.Context, link string) ([]byte, error)
 }
 

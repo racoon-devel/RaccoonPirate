@@ -32,6 +32,9 @@ func (s *Server) searchHandler(ctx *gin.Context) {
 			displayError(ctx, http.StatusBadRequest, "No results found")
 			return
 		}
+		for _, mov := range page.Movies {
+			s.cache.Store(mov.ID, mov)
+		}
 	}
 	ctx.HTML(http.StatusOK, "multimedia.search.tmpl", &page)
 }

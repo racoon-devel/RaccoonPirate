@@ -43,17 +43,8 @@ func (s *Service) SearchMovies(ctx context.Context, q string) ([]*model.Movie, e
 	result := make([]*model.Movie, 0, len(resp.Payload.Results))
 	for _, r := range resp.Payload.Results {
 		mov := convertMovieInfo(r)
-		s.cache.Store(mov.ID, mov)
 		result = append(result, mov)
 	}
 
 	return result, nil
-}
-
-func (s *Service) GetSeasonsCount(id string) uint {
-	mov, ok := s.movieFromCache(id)
-	if !ok {
-		return 0
-	}
-	return mov.Seasons
 }

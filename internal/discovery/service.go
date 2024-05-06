@@ -6,15 +6,13 @@ import (
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
 	"github.com/racoon-devel/media-station/internal/config"
-	"sync"
 )
 
 const searchResultsLimit = 8
 
 type Service struct {
-	auth  runtime.ClientAuthInfoWriter
-	cli   *client.Client
-	cache sync.Map
+	auth runtime.ClientAuthInfoWriter
+	cli  *client.Client
 }
 
 func NewService(conf config.Discovery) *Service {
