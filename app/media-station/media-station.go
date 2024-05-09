@@ -5,6 +5,7 @@ import (
 	"github.com/apex/log"
 	"github.com/racoon-devel/media-station/internal/config"
 	"github.com/racoon-devel/media-station/internal/discovery"
+	"github.com/racoon-devel/media-station/internal/torrents"
 	"github.com/racoon-devel/media-station/internal/web"
 )
 
@@ -28,8 +29,15 @@ func main() {
 	}
 	log.Debugf("Config: %+v", conf)
 
+	torrentService, err := torrents.New(conf.Storage)
+	if err != nil {
+		log.Fatalf("Start torrent service failed: %s", err)
+	}
+	defer torrentService.Stop()
+
 	server := web.Server{
 		DiscoveryService: discovery.NewService(conf.Discovery),
+		TorrentService:   torrentService,
 	}
 	if err = server.Run(conf.Http.Host, conf.Http.Port); err != nil {
 		log.Fatalf("Run web server failed: %s", err)

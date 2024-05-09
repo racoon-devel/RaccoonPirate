@@ -8,6 +8,7 @@ import (
 type Config struct {
 	Http      Http
 	Discovery Discovery
+	Storage   Storage
 }
 
 type Http struct {
@@ -21,6 +22,11 @@ type Discovery struct {
 	Host     string
 	Port     uint16
 	Path     string
+}
+
+type Storage struct {
+	Directory string
+	Limit     uint
 }
 
 func Load(destination string) (Config, error) {
