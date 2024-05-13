@@ -1,0 +1,26 @@
+{{ template "header" . }}
+
+<h1>Torrents</h1>
+<table class="classic-table" align="center">
+    <tr>
+        <th>
+            Title
+        </th>
+        <th>
+            Actions
+        </th>
+    </tr>
+    {{ range $id, $t := $.Torrents }}
+        <tr>
+            <td>
+                <b>{{ $t }}</b>
+            </td>
+            <td>
+                <a href="/torrents/delete/{{ $t }}"><input type="button" class="remove-button"
+                                                                          value="Remove"></a>
+            </td>
+        </tr>
+    {{ end }}
+</table>
+
+{{ template "footer" }}

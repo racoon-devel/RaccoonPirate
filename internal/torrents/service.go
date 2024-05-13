@@ -92,6 +92,14 @@ func (s *Service) Add(content []byte) error {
 	return nil
 }
 
+func (s *Service) List() ([]string, error) {
+	return s.layout.ListTorrentFiles()
+}
+
+func (s *Service) Remove(torrent string) error {
+	return s.layout.Remove(torrent)
+}
+
 func (s *Service) Stop() {
 	_ = s.fileStore.Close()
 	s.cli.Close()

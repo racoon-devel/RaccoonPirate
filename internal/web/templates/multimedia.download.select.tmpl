@@ -1,10 +1,10 @@
 {{ template "header" . }}
-<h1>Выбор раздачи</h1>
+<h1>Select torrent</h1>
 <table class="classic-table">
     <tr>
-        <th>Название</th>
-        <th>Размер</th>
-        <th>Сиды</th>
+        <th>Title</th>
+        <th>Size</th>
+        <th>Seeders</th>
     </tr>
     {{range $i, $t := .Torrents}}
         <tr>

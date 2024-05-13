@@ -41,5 +41,8 @@ func (s *Server) Run(host string, port uint16) error {
 	s.g.GET("/upload", s.getUploadHandler)
 	s.g.POST("/upload", s.postUploadHandler)
 
+	s.g.GET("/torrents", s.getTorrentsHandler)
+	s.g.GET("/torrents/delete/:id", s.deleteTorrentHandler)
+
 	return s.g.Run(fmt.Sprintf("%s:%d", host, port))
 }

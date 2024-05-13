@@ -14,4 +14,6 @@ type DiscoveryService interface {
 
 type TorrentService interface {
 	Add(data []byte) error
+	List() ([]string, error)
+	Remove(torrent string) error
 }

@@ -1,10 +1,10 @@
 {{ template "header" . }}
 <div style="text-align: center;">
-    <h1>Поиск</h1>
+    <h1>Search</h1>
     <form id="search" action="/search" method="get">
         <img src="/img/multimedia.png" width="200"/>
         <br><br>
-        <input type="text" placeholder="Поиск..." name="q" value="{{ .Query }}">
+        <input type="text" placeholder="Search..." name="q" value="{{ .Query }}">
     </form>
     <table style="border-spacing: 10px;">
         {{range $i, $m := $.Movies}}
@@ -14,14 +14,14 @@
                     <p>
                         <a href="https://www.imdb.com/title/{{$m.ID}}"><b>{{$m.Title}}</b></a><br>
                         <br>
-                        <b>Год: </b> {{$m.Year}}<br>
-                        <b>Жанр: </b> {{$m.Genres}}<br>
-                        <b>Описание: </b><i>{{$m.Description}}</i><br>
+                        <b>Year: </b> {{$m.Year}}<br>
+                        <b>Genre: </b> {{$m.Genres}}<br>
+                        <b>Description: </b><i>{{$m.Description}}</i><br>
                         <a href="/add/{{$m.ID}}">
-                            <button>Добавить</button>
+                            <button>Add</button>
                         </a>
                         <a href="/add/{{$m.ID}}?select=true">
-                            <button>Выбрать раздачу</button>
+                            <button>Select torrent</button>
                         </a>
                     </p>
                 </td>

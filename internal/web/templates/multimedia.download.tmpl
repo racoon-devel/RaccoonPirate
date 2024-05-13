@@ -1,5 +1,5 @@
 {{ template "header" . }}
-<h1>Выбор сезона</h1>
+<h1>Select season</h1>
 <form action="/add/{{.ID}}" method="get">
     <br>
     {{ range $i, $season := $.Seasons }}
@@ -9,6 +9,6 @@
     {{ end }}
     <input type="hidden" name="select" value="{{.Select}}"/>
     <br>
-    <input type="submit" class="save-button" value="Добавить"/>
+    <input type="submit" class="save-button" value="Add"/>
 </form>
 {{ template "footer" }}

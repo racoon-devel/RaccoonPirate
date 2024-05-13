@@ -97,5 +97,6 @@ func (s *Server) addHandler(ctx *gin.Context) {
 		return
 	}
 
+	l.Info("Added")
 	displayOK(ctx, "Torrent added", "/torrents")
 }
