@@ -4,6 +4,7 @@ import (
 	"github.com/RacoonMediaServer/rms-media-discovery/pkg/client/models"
 	"github.com/RacoonMediaServer/rms-media-discovery/pkg/model"
 	"github.com/gin-gonic/gin"
+	"github.com/racoon-devel/media-station/internal/selector"
 	"net/http"
 	"strconv"
 )
@@ -81,7 +82,8 @@ func (s *Server) addHandler(ctx *gin.Context) {
 			return
 		}
 
-		torrent = *list[0].Link
+		selected := s.Selector.Select(l, selector.CriteriaQuality, list)
+		torrent = *selected.Link
 	}
 
 	content, err := s.DiscoveryService.GetTorrent(ctx, torrent)

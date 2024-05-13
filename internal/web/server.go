@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/apex/log"
 	"github.com/gin-gonic/gin"
+	"github.com/racoon-devel/media-station/internal/selector"
 	"html/template"
 	"net/http"
 	"sync"
@@ -15,6 +16,7 @@ type Server struct {
 	cache            sync.Map
 	DiscoveryService DiscoveryService
 	TorrentService   TorrentService
+	Selector         selector.MovieSelector
 }
 
 func (s *Server) Run(host string, port uint16) error {
