@@ -4,7 +4,7 @@ import (
 	"github.com/RacoonMediaServer/rms-media-discovery/pkg/client/models"
 	"github.com/RacoonMediaServer/rms-media-discovery/pkg/model"
 	"github.com/gin-gonic/gin"
-	"github.com/racoon-devel/media-station/internal/selector"
+	"github.com/racoon-devel/raccoon-pirate/internal/selector"
 	"net/http"
 	"strconv"
 )

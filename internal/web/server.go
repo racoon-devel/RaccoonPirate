@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/apex/log"
 	"github.com/gin-gonic/gin"
-	"github.com/racoon-devel/media-station/internal/selector"
+	"github.com/racoon-devel/raccoon-pirate/internal/selector"
 	"html/template"
 	"net/http"
 	"sync"

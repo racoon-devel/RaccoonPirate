@@ -1,4 +1,4 @@
-module github.com/racoon-devel/media-station
+module github.com/racoon-devel/raccoon-pirate
 
 go 1.22.0
 

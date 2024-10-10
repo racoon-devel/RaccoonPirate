@@ -8,7 +8,7 @@ import (
 	"github.com/anacrolix/missinggo/v2/filecache"
 	aTorrent "github.com/anacrolix/torrent"
 	"github.com/anacrolix/torrent/storage"
-	"github.com/racoon-devel/media-station/internal/config"
+	"github.com/racoon-devel/raccoon-pirate/internal/config"
 	"os"
 	"path/filepath"
 )

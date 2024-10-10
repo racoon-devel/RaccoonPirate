@@ -3,11 +3,11 @@ package main
 import (
 	"flag"
 	"github.com/apex/log"
-	"github.com/racoon-devel/media-station/internal/config"
-	"github.com/racoon-devel/media-station/internal/discovery"
-	"github.com/racoon-devel/media-station/internal/selector"
-	"github.com/racoon-devel/media-station/internal/torrents"
-	"github.com/racoon-devel/media-station/internal/web"
+	"github.com/racoon-devel/raccoon-pirate/internal/config"
+	"github.com/racoon-devel/raccoon-pirate/internal/discovery"
+	"github.com/racoon-devel/raccoon-pirate/internal/selector"
+	"github.com/racoon-devel/raccoon-pirate/internal/torrents"
+	"github.com/racoon-devel/raccoon-pirate/internal/web"
 )
 
 var Version = "0.0.0"
@@ -24,10 +24,10 @@ func getVoicePriorityList() selector.Voices {
 }
 
 func main() {
-	log.Infof("media-station v%s", Version)
+	log.Infof("raccoon-pirate %s", Version)
 	defer log.Infof("DONE")
 
-	configPath := flag.String("config", "/etc/media-station/media-station.yml", "Path to YAML configuration file")
+	configPath := flag.String("config", "/etc/raccoon-pirate/raccoon-pirate.yml", "Path to YAML configuration file")
 	verbose := flag.Bool("verbose", false, "Enable extra logs")
 	flag.Parse()
 

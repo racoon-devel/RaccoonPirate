@@ -5,7 +5,7 @@ import (
 	"github.com/go-openapi/runtime"
 	httptransport "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
-	"github.com/racoon-devel/media-station/internal/config"
+	"github.com/racoon-devel/raccoon-pirate/internal/config"
 )
 
 const searchResultsLimit = 8
