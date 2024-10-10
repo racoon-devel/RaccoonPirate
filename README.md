@@ -1,5 +1,7 @@
 # RaccoonPirate
 
+![Logo](contrib/logo.jpg)
+
 Application for consuming media content from torrent trackers on-the-fly.
 
 ## How it works?
