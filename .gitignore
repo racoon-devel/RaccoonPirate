@@ -22,3 +22,6 @@ go.work
 
 # My config
 my_config.yml
+
+# Default media directory
+media

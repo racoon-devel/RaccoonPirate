@@ -6,9 +6,9 @@ http:
 # Torrents discovery remote service credentials
 discovery:
   identity: ""
-  scheme: "http"
-  host: "127.0.0.1"
-  port: 8081
+  scheme: "https"
+  host: "api.racoondev.top"
+  port: 443
   path: "/media"
 
 # Media storage options

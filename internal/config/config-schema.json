@@ -36,11 +36,13 @@
           "type": "string"
         },
         "host": {
-          "type": "string"
+          "type": "string",
+          "default": "api.racoondev.top"
         },
         "port": {
           "type": "integer",
-          "minimum": 1
+          "minimum": 1,
+          "default": 443
         },
         "scheme": {
           "type": "string",
@@ -52,7 +54,7 @@
         },
         "path": {
           "type": "string",
-          "default": ""
+          "default": "/media"
         }
       }
     },
