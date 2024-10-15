@@ -1,12 +1,51 @@
+# HTTP server settings
 http:
   host: "127.0.0.1"
   port: 8080
+
+# Torrents discovery remote service credentials
 discovery:
   identity: ""
   scheme: "http"
   host: "127.0.0.1"
   port: 8081
   path: "/media"
+
+# Media storage options
 storage:
+  # Directory for temporary store data
   directory: "media"
+
+  # Limit size of the directory (Gb), 0 means no limitation
   limit: 5
+
+# Rules for ranking torrents (auto select option)
+selector:
+  # Criterion for auto-selection (quality, fastest, compact)
+  # (compact means many seasons in the one torrent)
+  criterion: "quality"
+  
+  # Minimum limit size for 1 season of TV series (Mb)
+  min-season-size: 1024
+
+  # Maximum limit size for 1 season of TV series (Mb)
+  max-season-size: 51200
+
+  # Put low priority to torrents with not many seeders
+  min-seeders-threshold: 50
+
+  # Video quality priority (descending)
+  quality:
+    - "1080p"
+    - "720p"
+    - "2160p"
+    - "480p"
+
+  # Voice acting priority (descending)
+  voices:
+    - ["сыендук", "syenduk"]
+    - ["кубик", "кубе", "kubik", "kube"]
+    - ["кураж", "бомбей", "kurazh", "bombej"]
+    - ["lostfilm", "lost"]
+    - ["newstudio"]
+    - ["амедиа", "amedia"]

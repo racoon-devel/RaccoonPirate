@@ -1,0 +1,136 @@
+{
+  "type": "object",
+  "required": [
+    "http",
+    "storage",
+    "selector"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "http": {
+      "type": "object",
+      "required": [
+        "host",
+        "port"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "host": {
+          "type": "string"
+        },
+        "port": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "discovery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "identity",
+        "host"
+      ],
+      "properties": {
+        "identity": {
+          "type": "string"
+        },
+        "host": {
+          "type": "string"
+        },
+        "port": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "scheme": {
+          "type": "string",
+          "enum": [
+            "http",
+            "https"
+          ],
+          "default": "https"
+        },
+        "path": {
+          "type": "string",
+          "default": ""
+        }
+      }
+    },
+    "storage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "directory"
+      ],
+      "properties": {
+        "directory": {
+          "type": "string"
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0
+        }
+      }
+    },
+    "selector": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "criterion": {
+          "type": "string",
+          "enum": [
+            "quality",
+            "fastest",
+            "compact"
+          ],
+          "default": "quality"
+        },
+        "min-season-size": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 1024
+        },
+        "max-season-size": {
+          "type": "integer",
+          "minimum": 1024,
+          "default": 51200
+        },
+        "min-seeders-threshold": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 50
+        },
+        "quality": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": [
+              "1080p",
+              "720p",
+              "2160p",
+              "480p"
+            ]
+          },
+          "default": [
+            "1080p",
+            "720p",
+            "2160p",
+            "480p"
+          ]
+        },
+        "voices": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,5 +1,5 @@
-PROJECT_NAME=raccoon-pirate
-BINARY_NAME=${PROJECT_NAME}.out
+PROJECT_NAME=raccoon-pirated
+BINARY_NAME=${PROJECT_NAME}
 SOURCE_MAIN=app/${PROJECT_NAME}/${PROJECT_NAME}.go
 LDFLAGS="-X main.Version=`git tag --sort=-version:refname | head -n 1`"
 

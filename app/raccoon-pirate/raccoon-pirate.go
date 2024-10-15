@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+
 	"github.com/apex/log"
 	"github.com/racoon-devel/raccoon-pirate/internal/config"
 	"github.com/racoon-devel/raccoon-pirate/internal/discovery"
@@ -11,17 +12,6 @@ import (
 )
 
 var Version = "0.0.0"
-
-func getVoicePriorityList() selector.Voices {
-	v := selector.Voices{}
-	v.Append("сыендук", "syenduk")
-	v.Append("кубик", "кубе", "kubik", "kube")
-	v.Append("кураж", "бомбей", "kurazh", "bombej")
-	v.Append("lostfilm", "lost")
-	v.Append("newstudio")
-	v.Append("амедиа", "amedia")
-	return v
-}
 
 func main() {
 	log.Infof("raccoon-pirate %s", Version)
@@ -39,7 +29,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Load configuration failed: %s", err)
 	}
-	log.Debugf("Config: %+v", conf)
+	log.Infof("Config: %+v", conf)
 
 	torrentService, err := torrents.New(conf.Storage)
 	if err != nil {
@@ -51,11 +41,11 @@ func main() {
 		DiscoveryService: discovery.NewService(conf.Discovery),
 		TorrentService:   torrentService,
 		Selector: selector.MovieSelector{
-			MinSeasonSizeMB:     1024,
-			MaxSeasonSizeMB:     50 * 1024,
-			MinSeedersThreshold: 50,
-			QualityPrior:        []string{"1080p", "720p", "480p"},
-			VoiceList:           getVoicePriorityList(),
+			MinSeasonSizeMB:     int64(conf.Selector.MinSeasonSize),
+			MaxSeasonSizeMB:     int64(conf.Selector.MaxSeasonSize),
+			MinSeedersThreshold: int64(conf.Selector.MinSeedersThreshold),
+			QualityPrior:        conf.Selector.Quality,
+			VoiceList:           selector.Voices(conf.Selector.Voices),
 		},
 	}
 	if err = server.Run(conf.Http.Host, conf.Http.Port); err != nil {
