@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"time"
 
 	tConfig "github.com/RacoonMediaServer/distribyted/config"
 	"github.com/RacoonMediaServer/distribyted/fuse"
@@ -39,7 +40,7 @@ func New(cfg config.Storage) (*Service, error) {
 
 	torrentStorage := storage.NewResourcePieces(fileCache.AsResourceProvider())
 
-	fileStorage, err := torrent.NewFileItemStore(s.layout.itemsDir, cacheTTL)
+	fileStorage, err := torrent.NewFileItemStore(s.layout.itemsDir, time.Duration(cfg.TTL)*time.Hour)
 	if err != nil {
 		return nil, fmt.Errorf("create file store failed: %w", err)
 	}
@@ -50,8 +51,8 @@ func New(cfg config.Storage) (*Service, error) {
 	}
 
 	conf := tConfig.TorrentGlobal{
-		ReadTimeout:     readTimeout,
-		AddTimeout:      addTimeout,
+		ReadTimeout:     int(cfg.ReadTimeout),
+		AddTimeout:      int(cfg.AddTimeout),
 		GlobalCacheSize: -1,
 		MetadataFolder:  s.layout.baseDir,
 	}

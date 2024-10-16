@@ -1,26 +1,49 @@
 {
   "type": "object",
   "required": [
-    "http",
+    "frontend",
     "storage",
     "selector"
   ],
   "additionalProperties": false,
   "properties": {
-    "http": {
+    "frontend": {
       "type": "object",
+      "additionalProperties": false,
       "required": [
-        "host",
-        "port"
+        "http"
       ],
+      "properties": {
+        "http": {
+          "type": "object",
+          "required": [
+            "enabled",
+            "host",
+            "port"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "host": {
+              "type": "string"
+            },
+            "port": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        }
+      }
+    },
+    "application": {
+      "type": "object",
       "additionalProperties": false,
       "properties": {
-        "host": {
-          "type": "string"
-        },
-        "port": {
-          "type": "integer",
-          "minimum": 1
+        "auto-update": {
+          "type": "boolean",
+          "default": "true"
         }
       }
     },
@@ -55,6 +78,46 @@
         "path": {
           "type": "string",
           "default": "/media"
+        },
+        "language": {
+          "type": "string",
+          "default": "ru",
+          "enum": [
+            "ru",
+            "en"
+          ]
+        }
+      }
+    },
+    "representation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "categories": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "default": "true"
+            },
+            "type": {
+              "type": "boolean",
+              "default": "true"
+            },
+            "alphabet": {
+              "type": "boolean",
+              "default": "true"
+            },
+            "genres": {
+              "type": "boolean",
+              "default": "true"
+            },
+            "year": {
+              "type": "boolean",
+              "default": "true"
+            }
+          }
         }
       }
     },
@@ -72,6 +135,21 @@
           "type": "integer",
           "minimum": 0,
           "default": 0
+        },
+        "add-timeout": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 60
+        },
+        "read-timeout": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 60
+        },
+        "ttl": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 24
         }
       }
     },

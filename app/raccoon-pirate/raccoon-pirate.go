@@ -37,18 +37,21 @@ func main() {
 	}
 	defer torrentService.Stop()
 
-	server := web.Server{
-		DiscoveryService: discovery.NewService(conf.Discovery),
-		TorrentService:   torrentService,
-		Selector: selector.MovieSelector{
-			MinSeasonSizeMB:     int64(conf.Selector.MinSeasonSize),
-			MaxSeasonSizeMB:     int64(conf.Selector.MaxSeasonSize),
-			MinSeedersThreshold: int64(conf.Selector.MinSeedersThreshold),
-			QualityPrior:        conf.Selector.Quality,
-			VoiceList:           selector.Voices(conf.Selector.Voices),
-		},
-	}
-	if err = server.Run(conf.Http.Host, conf.Http.Port); err != nil {
-		log.Fatalf("Run web server failed: %s", err)
+	if conf.Frontend.Http.Enabled {
+		server := web.Server{
+			DiscoveryService: discovery.NewService(conf.Discovery),
+			TorrentService:   torrentService,
+			Selector: selector.MovieSelector{
+				MinSeasonSizeMB:     int64(conf.Selector.MinSeasonSize),
+				MaxSeasonSizeMB:     int64(conf.Selector.MaxSeasonSize),
+				MinSeedersThreshold: int64(conf.Selector.MinSeedersThreshold),
+				QualityPrior:        conf.Selector.Quality,
+				VoiceList:           selector.Voices(conf.Selector.Voices),
+			},
+		}
+
+		if err = server.Run(conf.Frontend.Http.Host, conf.Frontend.Http.Port); err != nil {
+			log.Fatalf("Run web server failed: %s", err)
+		}
 	}
 }
