@@ -1,0 +1,10 @@
+{{ define "media-type-choice" }}
+        <input type="radio" id="mediaType1" name="media-type" value="movies" {{if eq $.MediaType "movies"}}checked{{end}}/>
+        <label for="mediaType1">Movies</label> 
+
+        <input type="radio" id="mediaType2" name="media-type" value="music" {{if eq $.MediaType "music"}}checked{{end}}/>
+        <label for="mediaType2">Music</label>
+
+        <input type="radio" id="mediaType3" name="media-type" value="others" {{if eq $.MediaType "others"}}checked{{end}}/>
+        <label for="mediaType3">Other</label> 
+{{ end }}

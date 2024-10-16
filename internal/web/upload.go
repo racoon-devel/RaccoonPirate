@@ -1,13 +1,19 @@
 package web
 
 import (
-	"github.com/gin-gonic/gin"
 	"io"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
+type uploadPage struct {
+	uiPage
+	MediaType string
+}
+
 func (s *Server) getUploadHandler(ctx *gin.Context) {
-	ctx.HTML(http.StatusOK, "multimedia.upload.tmpl", &uiPage{})
+	ctx.HTML(http.StatusOK, "multimedia.upload.tmpl", &uploadPage{MediaType: "movies"})
 }
 
 func (s *Server) postUploadHandler(ctx *gin.Context) {

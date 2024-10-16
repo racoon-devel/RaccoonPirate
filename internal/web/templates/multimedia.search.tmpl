@@ -2,9 +2,11 @@
 <div style="text-align: center;">
     <h1>Search</h1>
     <form id="search" action="/search" method="get">
-        <img src="/img/multimedia.png" width="200"/>
+        <img src="/img/logo.jpg" width="400"/>
         <br><br>
-        <input type="text" placeholder="Search..." name="q" value="{{ .Query }}">
+        <input type="text" placeholder="Search..." name="q" value="{{ .Query }}"><br><br>
+        
+        {{ template "media-type-choice" . }}
     </form>
     <table style="border-spacing: 10px;">
         {{range $i, $m := $.Movies}}

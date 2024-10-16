@@ -1,6 +1,8 @@
 {{ template "header" . }}
 <h1>Upload</h1>
 <form action="/upload" method="post" enctype="multipart/form-data">
+     {{ template "media-type-choice" . }}
+    <br><br>
     <label for="file">Select torrent-file for upload: </label>
     <input type="file" accept=".torrent" id="file" name="file" />
     <br>

@@ -1,29 +1,37 @@
 package web
 
 import (
+	"net/http"
+
 	"github.com/RacoonMediaServer/rms-media-discovery/pkg/model"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 type searchPage struct {
 	uiPage
-	Query  string
-	Movies []*model.Movie
+	Query     string
+	MediaType string
+	Movies    []*model.Movie
 }
 
 func (s *Server) searchHandler(ctx *gin.Context) {
 	q := ctx.Query("q")
-	page := searchPage{
-		Query: q,
+	mediaType := ctx.Query("media-type")
+	if mediaType == "" {
+		mediaType = "movies"
 	}
+	page := searchPage{
+		Query:     q,
+		MediaType: mediaType,
+	}
+
 	if q != "" {
 		var err error
 		l := s.l.WithField("query", q)
 		l.Debugf("Search")
 		page.Movies, err = s.DiscoveryService.SearchMovies(ctx, q)
 		if err != nil {
-			l.Errorf("Search movies failed: %s", err)
+			l.Errorf("Search failed: %s", err)
 			displayError(ctx, http.StatusInternalServerError, "Something went wrong...")
 			return
 		}

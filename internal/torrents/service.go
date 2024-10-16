@@ -2,6 +2,9 @@ package torrents
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
+
 	tConfig "github.com/RacoonMediaServer/distribyted/config"
 	"github.com/RacoonMediaServer/distribyted/fuse"
 	"github.com/RacoonMediaServer/distribyted/torrent"
@@ -9,8 +12,6 @@ import (
 	aTorrent "github.com/anacrolix/torrent"
 	"github.com/anacrolix/torrent/storage"
 	"github.com/racoon-devel/raccoon-pirate/internal/config"
-	"os"
-	"path/filepath"
 )
 
 type Service struct {
