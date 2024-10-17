@@ -1,18 +1,25 @@
 package web
 
 import (
+	"context"
+	"errors"
 	"fmt"
-	"github.com/apex/log"
-	"github.com/gin-gonic/gin"
-	"github.com/racoon-devel/raccoon-pirate/internal/selector"
 	"html/template"
 	"net/http"
 	"sync"
+	"time"
+
+	"github.com/apex/log"
+	"github.com/gin-gonic/gin"
+	"github.com/racoon-devel/raccoon-pirate/internal/selector"
 )
+
+const gracefulShutdownTimeout = 10 * time.Second
 
 type Server struct {
 	l                *log.Entry
 	g                *gin.Engine
+	srv              http.Server
 	cache            sync.Map
 	DiscoveryService DiscoveryService
 	TorrentService   TorrentService
@@ -46,5 +53,22 @@ func (s *Server) Run(host string, port uint16) error {
 	s.g.GET("/torrents", s.getTorrentsHandler)
 	s.g.GET("/torrents/delete/:id", s.deleteTorrentHandler)
 
-	return s.g.Run(fmt.Sprintf("%s:%d", host, port))
+	s.srv.Addr = fmt.Sprintf("%s:%d", host, port)
+	s.srv.Handler = s.g.Handler()
+
+	go func() {
+		if err := s.srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			log.Errorf("Serve HTTP failed: %s", err)
+		}
+	}()
+	return nil
+}
+
+func (s *Server) Shutdown() {
+	ctx, cancel := context.WithTimeout(context.Background(), gracefulShutdownTimeout)
+	defer cancel()
+
+	if err := s.srv.Shutdown(ctx); err != nil {
+		log.Warnf("Shutdown failed: %s", err)
+	}
 }

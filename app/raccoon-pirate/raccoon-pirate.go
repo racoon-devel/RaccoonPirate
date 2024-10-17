@@ -2,6 +2,9 @@ package main
 
 import (
 	"flag"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/apex/log"
 	"github.com/racoon-devel/raccoon-pirate/internal/config"
@@ -16,7 +19,7 @@ var Version = "0.0.0"
 
 func main() {
 	log.Infof("raccoon-pirate %s", Version)
-	defer log.Infof("DONE")
+	defer log.Info("DONE")
 
 	configPath := flag.String("config", "/etc/raccoon-pirate/raccoon-pirate.yml", "Path to YAML configuration file")
 	verbose := flag.Bool("verbose", false, "Enable extra logs")
@@ -58,7 +61,15 @@ func main() {
 		}
 
 		if err = server.Run(conf.Frontend.Http.Host, conf.Frontend.Http.Port); err != nil {
-			log.Fatalf("Run web server failed: %s", err)
+			log.Errorf("Run web server failed: %s", err)
+		} else {
+			defer server.Shutdown()
 		}
 	}
+
+	signalCh := make(chan os.Signal, 1)
+	signal.Notify(signalCh, syscall.SIGINT, syscall.SIGTERM)
+
+	<-signalCh
+	log.Info("Shutdowning")
 }
