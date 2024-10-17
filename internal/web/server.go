@@ -25,7 +25,7 @@ type Server struct {
 
 	DiscoveryService DiscoveryService
 	TorrentService   TorrentService
-	Selector         selector.MovieSelector
+	Selector         selector.MediaSelector
 	SelectCriterion  selector.Criteria
 }
 

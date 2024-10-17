@@ -1,10 +1,11 @@
 package selector
 
 import (
+	"testing"
+
 	"github.com/RacoonMediaServer/rms-media-discovery/pkg/client/models"
 	"github.com/apex/log"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 type testCase struct {
@@ -129,8 +130,8 @@ var testCases = []testCase{
 	},
 }
 
-func TestMovieSelector_Select(t *testing.T) {
-	s := MovieSelector{
+func TestMediaSelector_Select(t *testing.T) {
+	s := MediaSelector{
 		MinSeasonSizeMB:     1024,
 		MaxSeasonSizeMB:     1024 * 50,
 		MinSeedersThreshold: 50,
@@ -149,7 +150,7 @@ func TestMovieSelector_Select(t *testing.T) {
 	for i, test := range testCases {
 		log.Debugf("\n\n############### Test %d ###############", i)
 		s.Voice = test.voice
-		result := s.Select(log.WithField("from", "selector"), test.criteria, test.list)
+		result := s.SelectMovie(log.WithField("from", "selector"), test.criteria, test.list)
 		assert.Equal(t, test.list[test.result], result, "test case %d failed", i)
 	}
 }

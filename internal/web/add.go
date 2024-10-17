@@ -10,6 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	internalModel "github.com/racoon-devel/raccoon-pirate/internal/model"
+	"github.com/racoon-devel/raccoon-pirate/internal/selector"
 )
 
 type selectSeasonPage struct {
@@ -34,7 +35,7 @@ type addQuery struct {
 }
 
 func getSeasonNo(season string) *int64 {
-	if season == "" {
+	if season == "" || season == "all" {
 		return nil
 	}
 	no, err := strconv.ParseUint(season, 10, 32)
@@ -125,9 +126,14 @@ func (s *Server) selectMovieTorrent(ctx *gin.Context, l *log.Entry, q *addQuery,
 		return false
 	}
 
+	criteria := s.SelectCriterion
+	if q.season == "all" {
+		criteria = selector.CriteriaCompact
+	}
+
 	// Select concrete torrent manually by user
 	if q.selectTorrent {
-		s.Selector.Sort(l, s.SelectCriterion, list)
+		s.Selector.SortMovies(l, criteria, list)
 		page := selectTorrentPage{
 			ID:       q.id,
 			Select:   q.selectTorrent,
@@ -138,7 +144,7 @@ func (s *Server) selectMovieTorrent(ctx *gin.Context, l *log.Entry, q *addQuery,
 	}
 
 	// Auto selection of torrent
-	selected := s.Selector.Select(l, s.SelectCriterion, list)
+	selected := s.Selector.SelectMovie(l, criteria, list)
 	q.torrent = *selected.Link
 	return true
 }

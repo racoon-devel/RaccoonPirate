@@ -2,6 +2,9 @@
 <h1>Select season</h1>
 <form action="/add/{{.ID}}" method="get">
     <br>
+    <input type="radio" id="all" name="season" value="all" checked/>
+    <label for="all">ALL</label>
+    <br>
     {{ range $i, $season := $.Seasons }}
         <input type="radio" id="season_{{$season}}" name="season" value="{{$season}}"/>
         <label for="season_{{$season}}">{{$season}}</label>

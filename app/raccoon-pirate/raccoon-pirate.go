@@ -57,7 +57,7 @@ func main() {
 			DiscoveryService: discoveryService,
 			TorrentService:   torrentService,
 			SelectCriterion:  conf.Selector.GetCriterion(),
-			Selector: selector.MovieSelector{
+			Selector: selector.MediaSelector{
 				MinSeasonSizeMB:     int64(conf.Selector.MinSeasonSize),
 				MaxSeasonSizeMB:     int64(conf.Selector.MaxSeasonSize),
 				MinSeedersThreshold: int64(conf.Selector.MinSeedersThreshold),
