@@ -24,8 +24,12 @@ func (d *Database) RemoveTorrent(id string) error {
 	return d.conn.Delete(query.NewQuery(torrentsCollection).Where(query.Field("ID").Eq(id)))
 }
 
-func (d *Database) LoadTorrents() ([]*model.Torrent, error) {
-	docs, err := d.conn.FindAll(query.NewQuery(torrentsCollection))
+func (d *Database) loadTorrents(t *model.MediaType) ([]*model.Torrent, error) {
+	q := query.NewQuery(torrentsCollection)
+	if t != nil {
+		q = q.Where(query.Field("Type").Eq(*t))
+	}
+	docs, err := d.conn.FindAll(q)
 	if err != nil {
 		return []*model.Torrent{}, err
 	}
@@ -38,4 +42,12 @@ func (d *Database) LoadTorrents() ([]*model.Torrent, error) {
 	}
 
 	return result, nil
+}
+
+func (d *Database) LoadAllTorrents() ([]*model.Torrent, error) {
+	return d.loadTorrents(nil)
+}
+
+func (d *Database) LoadTorrents(mediaType model.MediaType) ([]*model.Torrent, error) {
+	return d.loadTorrents(&mediaType)
 }

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 )
 
 type layout struct {
@@ -61,26 +60,7 @@ func (l layout) ListTorrents() (map[string][][]byte, error) {
 	return map[string][][]byte{mainRoute: result}, nil
 }
 
-func (l layout) ListTorrentFiles() (result []string, err error) {
-	var files []os.DirEntry
-	files, err = os.ReadDir(l.torrentsDir)
-	if err != nil {
-		return
-	}
-	for _, f := range files {
-		if !f.IsDir() {
-			fnWithoutExt := strings.TrimSuffix(f.Name(), filepath.Ext(f.Name()))
-			result = append(result, fnWithoutExt)
-		}
-	}
-	return
-}
-
-func (l layout) Remove(torrent string) error {
-	fileName := filepath.Join(l.torrentsDir, fmt.Sprintf("%s.torrent", torrent))
+func (l layout) Remove(id string) error {
+	fileName := filepath.Join(l.torrentsDir, fmt.Sprintf("%s.torrent", id))
 	return os.Remove(fileName)
-}
-
-func escape(s string) string {
-	return strings.Replace(s, "/", "", -1)
 }

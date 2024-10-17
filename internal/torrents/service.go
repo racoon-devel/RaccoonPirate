@@ -113,8 +113,8 @@ func (s *Service) Add(record *model.Torrent, content []byte) error {
 	return nil
 }
 
-func (s *Service) List() ([]string, error) {
-	return s.layout.ListTorrentFiles()
+func (s *Service) GetTorrentsList(mediaType model.MediaType) ([]*model.Torrent, error) {
+	return s.db.LoadTorrents(mediaType)
 }
 
 func (s *Service) Remove(torrent string) error {

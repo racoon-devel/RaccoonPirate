@@ -18,7 +18,8 @@ func (s *Server) getUploadHandler(ctx *gin.Context) {
 }
 
 func (s *Server) postUploadHandler(ctx *gin.Context) {
-	torrentRecord := model.Torrent{Type: decodeMediaType(ctx.PostForm("media-type"))}
+	mediaType := ctx.PostForm("media-type")
+	torrentRecord := model.Torrent{Type: decodeMediaType(mediaType)}
 	file, err := ctx.FormFile("file")
 	if err != nil {
 		s.l.Errorf("Upload torrent file failed: %s", err)
@@ -45,5 +46,5 @@ func (s *Server) postUploadHandler(ctx *gin.Context) {
 		displayError(ctx, http.StatusInternalServerError, "Add torrent failed")
 		return
 	}
-	displayOK(ctx, "Файл загружен", "/torrents")
+	displayOK(ctx, "Файл загружен", "/torrents?media-type="+mediaType)
 }

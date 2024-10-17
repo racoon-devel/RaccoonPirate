@@ -16,6 +16,6 @@ type DiscoveryService interface {
 
 type TorrentService interface {
 	Add(record *internalModel.Torrent, data []byte) error
-	List() ([]string, error)
+	GetTorrentsList(mediaType internalModel.MediaType) ([]*internalModel.Torrent, error)
 	Remove(torrent string) error
 }

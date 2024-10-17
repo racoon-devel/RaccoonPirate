@@ -10,7 +10,6 @@ type MediaType uint
 
 const (
 	MediaTypeMovie MediaType = iota
-	MediaTypeTvSeries
 	MediaTypeArtist
 	MediaTypeOther
 )
@@ -50,12 +49,7 @@ func (t *Torrent) GetGenres() []string {
 }
 
 func (t *Torrent) ExpandByMovie(mov *model.Movie) {
-	if mov.Type == model.MovieType_Movie {
-		t.Type = MediaTypeMovie
-	} else {
-		t.Type = MediaTypeTvSeries
-	}
-
+	t.Type = MediaTypeMovie
 	t.BelongsTo = mov.Title
 	t.Year = mov.Year
 	t.MediaID = mov.ID

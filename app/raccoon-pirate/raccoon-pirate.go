@@ -82,7 +82,7 @@ func main() {
 
 func printRegisteredTorrents(dbase *db.Database) {
 	out := "Registered torrents:\n"
-	list, err := dbase.LoadTorrents()
+	list, err := dbase.LoadAllTorrents()
 	if err != nil {
 		log.Fatalf("Retrieve torrents list failed")
 	}

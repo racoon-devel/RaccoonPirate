@@ -1,22 +1,35 @@
 {{ template "header" . }}
 
 <h1>Torrents</h1>
+<center>
+<form id="torrents" action="/torrents" method="get">       
+    {{ template "media-type-choice" . }}
+    <input type="submit" class="save-button" value="Show"/>
+    <br>
+</form>
+</center>
 <table class="classic-table" align="center">
     <tr>
         <th>
-            Title
+            Content
+        </th>
+        <th>
+            Torrent
         </th>
         <th>
             Actions
         </th>
     </tr>
-    {{ range $id, $t := $.Torrents }}
+    {{ range $i, $t := $.Torrents }}
         <tr>
             <td>
-                <b>{{ $t }}</b>
+                <b>{{ $t.BelongsTo }}</b>
             </td>
             <td>
-                <a href="/torrents/delete/{{ $t }}"><input type="button" class="remove-button"
+                <b>{{ $t.Title }}</b>
+            </td>
+            <td>
+                <a href="/torrents/delete/{{ $t.ID }}?media-type={{ $.MediaType }}"><input type="button" class="remove-button"
                                                                           value="Remove"></a>
             </td>
         </tr>

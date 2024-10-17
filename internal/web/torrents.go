@@ -1,29 +1,39 @@
 package web
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"github.com/racoon-devel/raccoon-pirate/internal/model"
 )
 
+type torrentsPage struct {
+	uiPage
+	Torrents  []*model.Torrent
+	MediaType string
+}
+
 func (s *Server) getTorrentsHandler(ctx *gin.Context) {
-	list, err := s.TorrentService.List()
-	if err != nil {
-		s.l.Errorf("Load existing torrents list failed: %s", err)
-		displayError(ctx, http.StatusInternalServerError, "Load torrents list failed")
-		return
+	mediaType := ctx.Query("media-type")
+	page := torrentsPage{}
+
+	if mediaType != "" {
+		list, err := s.TorrentService.GetTorrentsList(decodeMediaType(mediaType))
+		if err != nil {
+			s.l.Errorf("Load existing torrents list failed: %s", err)
+			displayError(ctx, http.StatusInternalServerError, "Load torrents list failed")
+			return
+		}
+		page.Torrents = list
+		page.MediaType = mediaType
 	}
 
-	page := struct {
-		uiPage
-		Torrents []string
-	}{
-		Torrents: list,
-	}
 	ctx.HTML(http.StatusOK, "multimedia.downloads.tmpl", &page)
 }
 
 func (s *Server) deleteTorrentHandler(ctx *gin.Context) {
 	id := ctx.Param("id")
+	mediaType := ctx.Query("media-type")
 	l := s.l.WithField("id", id)
 	if err := s.TorrentService.Remove(id); err != nil {
 		s.l.Errorf("Remove failed: %s", err)
@@ -31,5 +41,5 @@ func (s *Server) deleteTorrentHandler(ctx *gin.Context) {
 		return
 	}
 	l.Info("Removed")
-	displayOK(ctx, "Torrent removed", "/torrents")
+	displayOK(ctx, "Torrent removed", "/torrents?media-type="+mediaType)
 }

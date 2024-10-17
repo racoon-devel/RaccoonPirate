@@ -64,12 +64,14 @@ func (s *Server) addHandler(ctx *gin.Context) {
 		return
 	}
 
+	mediaType := ""
 	switch item := value.(type) {
 	case *model.Movie:
 		if !s.selectMovieTorrent(ctx, l, &q, item) {
 			return
 		}
 		torrentRecord.ExpandByMovie(item)
+		mediaType = "movies"
 	default:
 		l.Errorf("Unknown type of media: %T", item)
 		displayError(ctx, http.StatusInternalServerError, "Type of media is unsupported")
@@ -90,7 +92,7 @@ func (s *Server) addHandler(ctx *gin.Context) {
 	}
 
 	l.Info("Added")
-	displayOK(ctx, "Torrent added", "/torrents")
+	displayOK(ctx, "Torrent added", "/torrents?media-type="+mediaType)
 }
 
 func (s *Server) selectMovieTorrent(ctx *gin.Context, l *log.Entry, q *addQuery, mov *model.Movie) bool {
