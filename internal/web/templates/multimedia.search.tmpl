@@ -9,25 +9,70 @@
         {{ template "media-type-choice" . }}
     </form>
     <table style="border-spacing: 10px;">
-        {{range $i, $m := $.Movies}}
-            <tr>
-                <td><img src="{{$m.Poster}}" alt="{{$m.Title}}" width="200"/></td>
-                <td valign="top" style="text-align: left">
-                    <p>
-                        <a href="https://www.imdb.com/title/{{$m.ID}}"><b>{{$m.Title}}</b></a><br>
-                        <br>
-                        <b>Year: </b> {{$m.Year}}<br>
-                        <b>Genre: </b> {{$m.Genres}}<br>
-                        <b>Description: </b><i>{{$m.Description}}</i><br>
-                        <a href="/add/{{$m.ID}}">
-                            <button>Add</button>
-                        </a>
-                        <a href="/add/{{$m.ID}}?select=true">
-                            <button>Select torrent</button>
-                        </a>
-                    </p>
-                </td>
-            </tr>
+        {{ if eq $.MediaType "movies" }}
+            {{range $i, $m := $.Movies}}
+                <tr>
+                    <td><img src="{{$m.Poster}}" alt="{{$m.Title}}" width="200"/></td>
+                    <td valign="top" style="text-align: left">
+                        <p>
+                            <a href="https://www.imdb.com/title/{{$m.ID}}"><b>{{$m.Title}}</b></a><br>
+                            <br>
+                            <b>Year: </b> {{$m.Year}}<br>
+                            <b>Genre: </b> {{$m.Genres}}<br>
+                            <b>Description: </b><i>{{$m.Description}}</i><br>
+                            <a href="/add/{{$m.ID}}">
+                                <button>Add</button>
+                            </a>
+                            <a href="/add/{{$m.ID}}?select=true">
+                                <button>Select torrent</button>
+                            </a>
+                        </p>
+                    </td>
+                </tr>
+            {{ end }}
+        {{ end }}
+        {{ if eq $.MediaType "music" }}
+            {{range $i, $a := $.Artists}}
+                <tr>
+                    <td><img src="{{$a.PictureUrl}}" alt="{{$a.Name}}" width="200"/></td>
+                    <td valign="top" style="text-align: left">
+                        <p>
+                            <b>{{$a.Name}}</b><br>
+                            <i>Artist</i><br>
+                            <br>
+                            <b>Albums Count:</b> {{$a.Albums}}<br>
+                            <a href="/add/{{$a.Name}}">
+                                <button>Add</button>
+                            </a>
+                            <a href="/add/{{$a.Name}}?select=true">
+                                <button>Select torrent</button>
+                            </a>
+                        </p>
+                    </td>
+                </tr>
+            {{ end }}
+
+            {{range $i, $a := $.Albums}}
+                <tr>
+                    <td><img src="{{$a.CoverUrl}}" alt="{{$a.Title}}" width="200"/></td>
+                    <td valign="top" style="text-align: left">
+                        <p>
+                            <b>{{$a.Artist}} - {{$a.Title}}</b><br>
+                            <i>Album</i><br>
+                            <br>
+                            <b>Artist:</b> {{$a.Artist}}<br>
+                            <b>Genres:</b> {{$a.Genres}}<br>
+                            <b>Track Count:</b> {{$a.Tracks}}<br>
+                            <a href="/add/{{$a.Title}}">
+                                <button>Add</button>
+                            </a>
+                            <a href="/add/{{$a.Title}}?select=true">
+                                <button>Select torrent</button>
+                            </a>
+                        </p>
+                    </td>
+                </tr>
+            {{ end }}
         {{ end }}
     </table>
 </div>

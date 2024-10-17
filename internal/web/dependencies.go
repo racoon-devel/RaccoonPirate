@@ -10,6 +10,7 @@ import (
 
 type DiscoveryService interface {
 	SearchMovies(ctx context.Context, q string) ([]*model.Movie, error)
+	SearchMusic(ctx context.Context, q string) ([]model.Music, error)
 	SearchTorrents(ctx context.Context, mov *model.Movie, season *int64) ([]*models.SearchTorrentsResult, error)
 	GetTorrent(ctx context.Context, link string) ([]byte, error)
 }
