@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
@@ -41,16 +42,21 @@ func main() {
 	}
 	defer dbase.Close()
 
+	printRegisteredTorrents(dbase)
+
 	torrentService, err := torrents.New(conf.Storage, dbase)
 	if err != nil {
 		log.Fatalf("Start torrent service failed: %s", err)
 	}
 	defer torrentService.Stop()
 
+	discoveryService := discovery.NewService(conf.Discovery)
+
 	if conf.Frontend.Http.Enabled {
 		server := web.Server{
-			DiscoveryService: discovery.NewService(conf.Discovery),
+			DiscoveryService: discoveryService,
 			TorrentService:   torrentService,
+			SelectCriterion:  conf.Selector.GetCriterion(),
 			Selector: selector.MovieSelector{
 				MinSeasonSizeMB:     int64(conf.Selector.MinSeasonSize),
 				MaxSeasonSizeMB:     int64(conf.Selector.MaxSeasonSize),
@@ -72,4 +78,17 @@ func main() {
 
 	<-signalCh
 	log.Info("Shutdowning")
+}
+
+func printRegisteredTorrents(dbase *db.Database) {
+	out := "Registered torrents:\n"
+	list, err := dbase.LoadTorrents()
+	if err != nil {
+		log.Fatalf("Retrieve torrents list failed")
+	}
+	for _, t := range list {
+		out += fmt.Sprintf("ID: %s, Type: %d, Title: '%s', BelongsTo: '%s'\n", t.ID, t.Type, t.Title, t.BelongsTo)
+	}
+	log.Info(out)
+
 }

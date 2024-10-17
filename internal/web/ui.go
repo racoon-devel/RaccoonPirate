@@ -1,8 +1,10 @@
 package web
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"github.com/racoon-devel/raccoon-pirate/internal/model"
 )
 
 type uiPage struct {
@@ -39,4 +41,17 @@ func iotaSeasons(count uint) []uint {
 		result[i-1] = i
 	}
 	return result
+}
+
+func decodeMediaType(t string) model.MediaType {
+	switch t {
+	case "movies":
+		return model.MediaTypeMovie
+	case "music":
+		return model.MediaTypeArtist
+	case "others":
+		return model.MediaTypeOther
+	default:
+		return model.MediaTypeMovie
+	}
 }

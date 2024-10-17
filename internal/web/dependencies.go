@@ -2,8 +2,10 @@ package web
 
 import (
 	"context"
+
 	"github.com/RacoonMediaServer/rms-media-discovery/pkg/client/models"
 	"github.com/RacoonMediaServer/rms-media-discovery/pkg/model"
+	internalModel "github.com/racoon-devel/raccoon-pirate/internal/model"
 )
 
 type DiscoveryService interface {
@@ -13,7 +15,7 @@ type DiscoveryService interface {
 }
 
 type TorrentService interface {
-	Add(data []byte) error
+	Add(record *internalModel.Torrent, data []byte) error
 	List() ([]string, error)
 	Remove(torrent string) error
 }

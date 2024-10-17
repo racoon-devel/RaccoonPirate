@@ -1,5 +1,11 @@
 package model
 
+import (
+	"encoding/json"
+
+	"github.com/RacoonMediaServer/rms-media-discovery/pkg/model"
+)
+
 type MediaType uint
 
 const (
@@ -30,4 +36,28 @@ type Torrent struct {
 
 	// MediaID is an ID of discovered item. Not used, but may be useful in the feature
 	MediaID string
+}
+
+func (t *Torrent) SetGenres(list []string) {
+	data, _ := json.Marshal(list)
+	t.Genres = string(data)
+}
+
+func (t *Torrent) GetGenres() []string {
+	result := []string{}
+	_ = json.Unmarshal([]byte(t.Genres), &result)
+	return result
+}
+
+func (t *Torrent) ExpandByMovie(mov *model.Movie) {
+	if mov.Type == model.MovieType_Movie {
+		t.Type = MediaTypeMovie
+	} else {
+		t.Type = MediaTypeTvSeries
+	}
+
+	t.BelongsTo = mov.Title
+	t.Year = mov.Year
+	t.MediaID = mov.ID
+	t.SetGenres(mov.Genres)
 }

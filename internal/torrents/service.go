@@ -12,10 +12,14 @@ import (
 	"github.com/anacrolix/missinggo/v2/filecache"
 	aTorrent "github.com/anacrolix/torrent"
 	"github.com/anacrolix/torrent/storage"
+	"github.com/apex/log"
 	"github.com/racoon-devel/raccoon-pirate/internal/config"
+	"github.com/racoon-devel/raccoon-pirate/internal/model"
+	uuid "github.com/satori/go.uuid"
 )
 
 type Service struct {
+	l      *log.Entry
 	layout layout
 	db     Database
 
@@ -29,6 +33,7 @@ func New(cfg config.Storage, db Database) (*Service, error) {
 	s := Service{
 		layout: newLayout(cfg.Directory),
 		db:     db,
+		l:      log.WithField("from", "torrent-service"),
 	}
 	if err := s.layout.makeLayout(); err != nil {
 		return nil, err
@@ -87,12 +92,24 @@ func New(cfg config.Storage, db Database) (*Service, error) {
 	return &s, nil
 }
 
-func (s *Service) Add(content []byte) error {
+func (s *Service) Add(record *model.Torrent, content []byte) error {
 	title, _, err := s.service.Add(mainRoute, content)
 	if err != nil {
 		return err
 	}
-	_ = os.WriteFile(filepath.Join(s.layout.torrentsDir, fmt.Sprintf("%s.torrent", escape(title))), content, 0744)
+
+	record.ID = uuid.NewV4().String()
+	record.Title = title
+
+	if err = os.WriteFile(filepath.Join(s.layout.torrentsDir, fmt.Sprintf("%s.torrent", record.ID)), content, 0744); err != nil {
+		s.l.Errorf("Create torrent faile failed: %s", err)
+		return nil
+	}
+
+	if err = s.db.PutTorrent(record); err != nil {
+		s.l.Errorf("Store info about torrent failed: %s", err)
+	}
+
 	return nil
 }
 
@@ -101,7 +118,11 @@ func (s *Service) List() ([]string, error) {
 }
 
 func (s *Service) Remove(torrent string) error {
-	return s.layout.Remove(torrent)
+	if err := s.layout.Remove(torrent); err != nil {
+		return err
+	}
+
+	return s.db.RemoveTorrent(torrent)
 }
 
 func (s *Service) Stop() {

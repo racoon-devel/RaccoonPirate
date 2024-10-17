@@ -27,7 +27,7 @@ func (s *Server) searchHandler(ctx *gin.Context) {
 
 	if q != "" {
 		var err error
-		l := s.l.WithField("query", q)
+		l := s.l.WithField("query", q).WithField("media-type", mediaType)
 		l.Debugf("Search")
 		page.Movies, err = s.DiscoveryService.SearchMovies(ctx, q)
 		if err != nil {

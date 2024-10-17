@@ -1,10 +1,12 @@
 package selector
 
 import (
+	"sort"
+	"strings"
+
 	"github.com/RacoonMediaServer/rms-media-discovery/pkg/client/models"
 	"github.com/antzucaro/matchr"
 	"github.com/apex/log"
-	"strings"
 )
 
 type MovieSelector struct {
@@ -40,6 +42,14 @@ func (s MovieSelector) Select(l *log.Entry, criteria Criteria, list []*models.Se
 	sel := list[best]
 	l.Infof("Selected { Title: %s, Voice: %s, Size: %d, Seeders: %d, Quality: %s }", getString(sel.Title), sel.Voice, getValue(sel.Size), getValue(sel.Seeders), sel.Quality)
 	return sel
+}
+
+func (s MovieSelector) Sort(l *log.Entry, criteria Criteria, list []*models.SearchTorrentsResult) {
+	rank := s.getRankFunction(criteria)
+	ranks := rank(l, list)
+	sort.SliceStable(list, func(i, j int) bool {
+		return ranks[j] < ranks[i]
+	})
 }
 
 func (s MovieSelector) rankBySize(l *log.Entry, list []*models.SearchTorrentsResult) []float32 {

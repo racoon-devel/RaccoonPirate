@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/racoon-devel/raccoon-pirate/internal/model"
 )
 
 type uploadPage struct {
@@ -17,7 +18,7 @@ func (s *Server) getUploadHandler(ctx *gin.Context) {
 }
 
 func (s *Server) postUploadHandler(ctx *gin.Context) {
-
+	torrentRecord := model.Torrent{Type: decodeMediaType(ctx.PostForm("media-type"))}
 	file, err := ctx.FormFile("file")
 	if err != nil {
 		s.l.Errorf("Upload torrent file failed: %s", err)
@@ -39,7 +40,7 @@ func (s *Server) postUploadHandler(ctx *gin.Context) {
 		return
 	}
 
-	if err = s.TorrentService.Add(buf); err != nil {
+	if err = s.TorrentService.Add(&torrentRecord, buf); err != nil {
 		s.l.Errorf("Add torrent failed %s", err)
 		displayError(ctx, http.StatusInternalServerError, "Add torrent failed")
 		return

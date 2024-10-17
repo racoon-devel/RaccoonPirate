@@ -6,29 +6,33 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
-	"sync"
 	"time"
 
 	"github.com/apex/log"
 	"github.com/gin-gonic/gin"
+	"github.com/racoon-devel/raccoon-pirate/internal/cache"
 	"github.com/racoon-devel/raccoon-pirate/internal/selector"
 )
 
 const gracefulShutdownTimeout = 10 * time.Second
+const cacheItemTTL = 1 * time.Hour
 
 type Server struct {
-	l                *log.Entry
-	g                *gin.Engine
-	srv              http.Server
-	cache            sync.Map
+	l     *log.Entry
+	g     *gin.Engine
+	srv   http.Server
+	cache *cache.Cache
+
 	DiscoveryService DiscoveryService
 	TorrentService   TorrentService
 	Selector         selector.MovieSelector
+	SelectCriterion  selector.Criteria
 }
 
 func (s *Server) Run(host string, port uint16) error {
 	s.l = log.WithField("from", "web")
 	s.g = gin.Default()
+	s.cache = cache.New(cacheItemTTL)
 
 	root := template.New("root")
 	templates := template.Must(root.ParseFS(templatesFS, "templates/*.tmpl"))

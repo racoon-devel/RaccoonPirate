@@ -2,6 +2,7 @@ package discovery
 
 import (
 	"context"
+
 	"github.com/RacoonMediaServer/rms-media-discovery/pkg/client/client/movies"
 	"github.com/RacoonMediaServer/rms-media-discovery/pkg/client/models"
 	"github.com/RacoonMediaServer/rms-media-discovery/pkg/model"

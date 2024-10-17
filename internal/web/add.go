@@ -1,12 +1,15 @@
 package web
 
 import (
-	"github.com/RacoonMediaServer/rms-media-discovery/pkg/client/models"
-	"github.com/RacoonMediaServer/rms-media-discovery/pkg/model"
-	"github.com/gin-gonic/gin"
-	"github.com/racoon-devel/raccoon-pirate/internal/selector"
 	"net/http"
 	"strconv"
+
+	"github.com/RacoonMediaServer/rms-media-discovery/pkg/client/models"
+	"github.com/RacoonMediaServer/rms-media-discovery/pkg/model"
+	"github.com/apex/log"
+	"github.com/gin-gonic/gin"
+
+	internalModel "github.com/racoon-devel/raccoon-pirate/internal/model"
 )
 
 type selectSeasonPage struct {
@@ -23,6 +26,13 @@ type selectTorrentPage struct {
 	Torrents []*models.SearchTorrentsResult
 }
 
+type addQuery struct {
+	id            string
+	season        string
+	selectTorrent bool
+	torrent       string
+}
+
 func getSeasonNo(season string) *int64 {
 	if season == "" {
 		return nil
@@ -37,63 +47,42 @@ func getSeasonNo(season string) *int64 {
 }
 
 func (s *Server) addHandler(ctx *gin.Context) {
-	id := ctx.Param("id")
-	l := s.l.WithField("id", id)
-	season := ctx.Query("season")
-	selectTorrent := ctx.Query("select") == "true"
-	torrent := ctx.Query("torrent")
+	torrentRecord := &internalModel.Torrent{}
+	q := addQuery{
+		id:            ctx.Param("id"),
+		season:        ctx.Query("season"),
+		selectTorrent: ctx.Query("select") == "true",
+		torrent:       ctx.Query("torrent"),
+	}
+	l := s.l.WithField("id", q.id)
 
-	mov, ok := s.movieFromCache(id)
+	value, ok := s.cache.Load(q.id)
 	if !ok {
 		l.Errorf("Item not found")
 		displayError(ctx, http.StatusNotFound, "Info about media not found in a cache")
 		return
 	}
 
-	if mov.Type == model.MovieType_TvSeries && mov.Seasons != 0 && season == "" && torrent == "" {
-		page := selectSeasonPage{
-			ID:      id,
-			Select:  selectTorrent,
-			Seasons: iotaSeasons(mov.Seasons),
+	switch item := value.(type) {
+	case *model.Movie:
+		if !s.selectMovieTorrent(ctx, l, &q, item) {
+			return
 		}
-		ctx.HTML(http.StatusOK, "multimedia.download.tmpl", &page)
+		torrentRecord.ExpandByMovie(item)
+	default:
+		l.Errorf("Unknown type of media: %T", item)
+		displayError(ctx, http.StatusInternalServerError, "Type of media is unsupported")
 		return
 	}
 
-	if torrent == "" {
-		list, err := s.DiscoveryService.SearchTorrents(ctx, mov, getSeasonNo(season))
-		if err != nil {
-			l.Errorf("Search torrents failed: %s", err)
-			displayError(ctx, http.StatusInternalServerError, "Search torrents failed")
-			return
-		}
-		if len(list) == 0 {
-			l.Warnf("Nothing found")
-			displayError(ctx, http.StatusNotFound, "Nothing found")
-			return
-		}
-		if selectTorrent {
-			page := selectTorrentPage{
-				ID:       id,
-				Select:   selectTorrent,
-				Torrents: list,
-			}
-			ctx.HTML(http.StatusOK, "multimedia.download.select.tmpl", &page)
-			return
-		}
-
-		selected := s.Selector.Select(l, selector.CriteriaQuality, list)
-		torrent = *selected.Link
-	}
-
-	content, err := s.DiscoveryService.GetTorrent(ctx, torrent)
+	content, err := s.DiscoveryService.GetTorrent(ctx, q.torrent)
 	if err != nil {
-		l.Errorf("Download torrent '%s' failed: %s", torrent, err)
+		l.Errorf("Download torrent '%s' failed: %s", q.torrent, err)
 		displayError(ctx, http.StatusInternalServerError, "Download torrent failed")
 		return
 	}
 
-	if err = s.TorrentService.Add(content); err != nil {
+	if err = s.TorrentService.Add(torrentRecord, content); err != nil {
 		l.Errorf("Add torrent failed: %s", err)
 		displayError(ctx, http.StatusInternalServerError, "Add torrent failed")
 		return
@@ -101,4 +90,55 @@ func (s *Server) addHandler(ctx *gin.Context) {
 
 	l.Info("Added")
 	displayOK(ctx, "Torrent added", "/torrents")
+}
+
+func (s *Server) selectMovieTorrent(ctx *gin.Context, l *log.Entry, q *addQuery, mov *model.Movie) bool {
+	l = l.WithField("media-type", "movie").WithField("title", mov.Title)
+
+	// Select season in tv-series case
+	if mov.Type == model.MovieType_TvSeries && mov.Seasons != 0 && q.season == "" && q.torrent == "" {
+		page := selectSeasonPage{
+			ID:      q.id,
+			Select:  q.selectTorrent,
+			Seasons: iotaSeasons(mov.Seasons),
+		}
+		ctx.HTML(http.StatusOK, "multimedia.download.tmpl", &page)
+		return false
+	}
+
+	// If torrent has been selected - just return
+	if q.torrent != "" {
+		return true
+	}
+
+	// Search torrents
+	list, err := s.DiscoveryService.SearchTorrents(ctx, mov, getSeasonNo(q.season))
+	if err != nil {
+		l.Errorf("Search torrents failed: %s", err)
+		displayError(ctx, http.StatusInternalServerError, "Search torrents failed")
+		return false
+	}
+
+	if len(list) == 0 {
+		l.Warnf("Nothing found")
+		displayError(ctx, http.StatusNotFound, "Nothing found")
+		return false
+	}
+
+	// Select concrete torrent manually by user
+	if q.selectTorrent {
+		s.Selector.Sort(l, s.SelectCriterion, list)
+		page := selectTorrentPage{
+			ID:       q.id,
+			Select:   q.selectTorrent,
+			Torrents: list,
+		}
+		ctx.HTML(http.StatusOK, "multimedia.download.select.tmpl", &page)
+		return false
+	}
+
+	// Auto selection of torrent
+	selected := s.Selector.Select(l, s.SelectCriterion, list)
+	q.torrent = *selected.Link
+	return true
 }
