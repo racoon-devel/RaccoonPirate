@@ -5,6 +5,7 @@ import (
 
 	"github.com/apex/log"
 	"github.com/racoon-devel/raccoon-pirate/internal/config"
+	"github.com/racoon-devel/raccoon-pirate/internal/db"
 	"github.com/racoon-devel/raccoon-pirate/internal/discovery"
 	"github.com/racoon-devel/raccoon-pirate/internal/selector"
 	"github.com/racoon-devel/raccoon-pirate/internal/torrents"
@@ -30,6 +31,12 @@ func main() {
 		log.Fatalf("Load configuration failed: %s", err)
 	}
 	log.Infof("Config: %+v", conf)
+
+	dbase, err := db.Open(conf.Storage)
+	if err != nil {
+		log.Fatalf("Open database failed: %s", err)
+	}
+	defer dbase.Close()
 
 	torrentService, err := torrents.New(conf.Storage)
 	if err != nil {

@@ -81,7 +81,8 @@ require (
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/btree v1.1.2 // indirect
-	github.com/google/flatbuffers v2.0.0+incompatible // indirect
+	github.com/google/flatbuffers v2.0.6+incompatible // indirect
+	github.com/google/orderedcode v0.0.1 // indirect
 	github.com/google/uuid v1.3.1 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
@@ -89,7 +90,7 @@ require (
 	github.com/huandu/xstrings v1.4.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
-	github.com/klauspost/compress v1.13.6 // indirect
+	github.com/klauspost/compress v1.15.9 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.7 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
@@ -102,6 +103,7 @@ require (
 	github.com/nwaples/rardecode/v2 v2.0.0-beta.2 // indirect
 	github.com/oklog/ulid v1.3.1 // indirect
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
+	github.com/ostafen/clover/v2 v2.0.0-alpha.3 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.2 // indirect
 	github.com/pion/datachannel v1.5.5 // indirect
 	github.com/pion/dtls/v2 v2.2.7 // indirect
@@ -131,6 +133,8 @@ require (
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.12 // indirect
 	github.com/ulikunitz/xz v0.5.10 // indirect
+	github.com/vmihailenco/msgpack/v5 v5.3.5 // indirect
+	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
 	go.etcd.io/bbolt v1.3.7 // indirect
 	go.mongodb.org/mongo-driver v1.11.1 // indirect
 	go.opencensus.io v0.23.0 // indirect
