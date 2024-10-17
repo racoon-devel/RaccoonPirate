@@ -38,7 +38,7 @@ func main() {
 	}
 	defer dbase.Close()
 
-	torrentService, err := torrents.New(conf.Storage)
+	torrentService, err := torrents.New(conf.Storage, dbase)
 	if err != nil {
 		log.Fatalf("Start torrent service failed: %s", err)
 	}

@@ -17,6 +17,7 @@ import (
 
 type Service struct {
 	layout layout
+	db     Database
 
 	fuse      *fuse.Handler
 	fileStore *torrent.FileItemStore
@@ -24,9 +25,10 @@ type Service struct {
 	service   *torrent.Service
 }
 
-func New(cfg config.Storage) (*Service, error) {
+func New(cfg config.Storage, db Database) (*Service, error) {
 	s := Service{
 		layout: newLayout(cfg.Directory),
+		db:     db,
 	}
 	if err := s.layout.makeLayout(); err != nil {
 		return nil, err
