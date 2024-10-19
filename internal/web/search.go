@@ -1,11 +1,13 @@
 package web
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/RacoonMediaServer/rms-media-discovery/pkg/model"
 	"github.com/apex/log"
 	"github.com/gin-gonic/gin"
+	uuid "github.com/satori/go.uuid"
 )
 
 type searchPage struct {
@@ -97,6 +99,11 @@ func (s *Server) searchHandler(ctx *gin.Context) {
 			return
 		}
 		page.Artists, page.Albums = extractArtistsAlbums(music)
+	case "others":
+		id := uuid.NewV4().String()
+		s.cache.Store(id, q)
+		ctx.Redirect(http.StatusFound, fmt.Sprintf("/add/%s?select=true", id))
+		return
 	}
 
 	ctx.HTML(http.StatusOK, "multimedia.search.tmpl", &page)

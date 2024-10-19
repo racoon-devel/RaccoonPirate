@@ -79,6 +79,12 @@ func (s *Server) addHandler(ctx *gin.Context) {
 		}
 		torrentRecord.ExpandByMusic(item)
 		mediaType = "music"
+	case string:
+		if !s.selectOtherTorrent(ctx, l, &q, item) {
+			return
+		}
+		torrentRecord.Type = media.Other
+		mediaType = "other"
 	default:
 		l.Errorf("Unknown type of media: %T", item)
 		displayError(ctx, http.StatusInternalServerError, "Type of media is unsupported")
@@ -167,6 +173,11 @@ func (s *Server) selectMovieTorrent(ctx *gin.Context, l *log.Entry, q *addQuery,
 func (s *Server) selectMusicTorrent(ctx *gin.Context, l *log.Entry, q *addQuery, m model.Music) bool {
 	l = l.WithField("media-type", "music").WithField("title", m.Title())
 
+	// If torrent has been selected - just return
+	if q.torrent != "" {
+		return true
+	}
+
 	// Search torrents
 	list, err := s.DiscoveryService.SearchMusicTorrents(ctx, m)
 	if err != nil {
@@ -187,6 +198,53 @@ func (s *Server) selectMusicTorrent(ctx *gin.Context, l *log.Entry, q *addQuery,
 		MediaType:   media.Music,
 		Query:       m.Title(),
 		Discography: m.IsArtist(),
+	}
+
+	// Select concrete torrent manually by user
+	if q.selectTorrent {
+		s.Selector.Sort(list, opts)
+		page := selectTorrentPage{
+			ID:       q.id,
+			Select:   q.selectTorrent,
+			Torrents: list,
+		}
+		ctx.HTML(http.StatusOK, "multimedia.download.select.tmpl", &page)
+		return false
+	}
+
+	// Auto selection of torrent
+	selected := s.Selector.Select(list, opts)
+	q.torrent = *selected.Link
+	return true
+}
+
+func (s *Server) selectOtherTorrent(ctx *gin.Context, l *log.Entry, q *addQuery, tq string) bool {
+	l = l.WithField("media-type", "other").WithField("title", tq)
+
+	// If torrent has been selected - just return
+	if q.torrent != "" {
+		return true
+	}
+
+	// Search torrents
+	list, err := s.DiscoveryService.SearchOtherTorrents(ctx, tq)
+	if err != nil {
+		l.Errorf("Search torrents failed: %s", err)
+		displayError(ctx, http.StatusInternalServerError, "Search torrents failed")
+		return false
+	}
+
+	if len(list) == 0 {
+		l.Warnf("Nothing found")
+		displayError(ctx, http.StatusNotFound, "Nothing found")
+		return false
+	}
+
+	opts := selector.Options{
+		Log:       l,
+		Criteria:  s.SelectCriterion,
+		MediaType: media.Other,
+		Query:     tq,
 	}
 
 	// Select concrete torrent manually by user

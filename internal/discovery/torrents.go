@@ -89,6 +89,20 @@ func (s *Service) SearchMusicTorrents(ctx context.Context, m model.Music) ([]*mo
 	return s.searchTorrents(ctx, &req)
 }
 
+func (s *Service) SearchOtherTorrents(ctx context.Context, q string) ([]*models.SearchTorrentsResult, error) {
+	req := torrents.SearchTorrentsAsyncParams{
+		SearchParameters: torrents.SearchTorrentsAsyncBody{
+			Limit:  int64(searchResultsLimit),
+			Q:      &q,
+			Strong: asPtr(false),
+			Type:   "others",
+		},
+		Context: ctx,
+	}
+
+	return s.searchTorrents(ctx, &req)
+}
+
 func (s *Service) GetTorrent(ctx context.Context, link string) ([]byte, error) {
 	req := torrents.DownloadTorrentParams{
 		Link:    link,

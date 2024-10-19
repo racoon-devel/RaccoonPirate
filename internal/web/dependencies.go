@@ -14,6 +14,7 @@ type DiscoveryService interface {
 	SearchMusic(ctx context.Context, q string) ([]model.Music, error)
 	SearchMovieTorrents(ctx context.Context, mov *model.Movie, season *int64) ([]*models.SearchTorrentsResult, error)
 	SearchMusicTorrents(ctx context.Context, m model.Music) ([]*models.SearchTorrentsResult, error)
+	SearchOtherTorrents(ctx context.Context, q string) ([]*models.SearchTorrentsResult, error)
 	GetTorrent(ctx context.Context, link string) ([]byte, error)
 }
 
