@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/RacoonMediaServer/rms-media-discovery/pkg/client/models"
+	"github.com/RacoonMediaServer/rms-media-discovery/pkg/media"
 	"github.com/RacoonMediaServer/rms-media-discovery/pkg/model"
 	"github.com/apex/log"
 	"github.com/gin-gonic/gin"
@@ -72,6 +73,12 @@ func (s *Server) addHandler(ctx *gin.Context) {
 		}
 		torrentRecord.ExpandByMovie(item)
 		mediaType = "movies"
+	case model.Music:
+		if !s.selectMusicTorrent(ctx, l, &q, item) {
+			return
+		}
+		torrentRecord.ExpandByMusic(item)
+		mediaType = "music"
 	default:
 		l.Errorf("Unknown type of media: %T", item)
 		displayError(ctx, http.StatusInternalServerError, "Type of media is unsupported")
@@ -115,7 +122,7 @@ func (s *Server) selectMovieTorrent(ctx *gin.Context, l *log.Entry, q *addQuery,
 	}
 
 	// Search torrents
-	list, err := s.DiscoveryService.SearchTorrents(ctx, mov, getSeasonNo(q.season))
+	list, err := s.DiscoveryService.SearchMovieTorrents(ctx, mov, getSeasonNo(q.season))
 	if err != nil {
 		l.Errorf("Search torrents failed: %s", err)
 		displayError(ctx, http.StatusInternalServerError, "Search torrents failed")
@@ -133,9 +140,15 @@ func (s *Server) selectMovieTorrent(ctx *gin.Context, l *log.Entry, q *addQuery,
 		criteria = selector.CriteriaCompact
 	}
 
+	opts := selector.Options{
+		Log:       l,
+		Criteria:  criteria,
+		MediaType: media.Movies,
+	}
+
 	// Select concrete torrent manually by user
 	if q.selectTorrent {
-		s.Selector.SortMovies(l, criteria, list)
+		s.Selector.Sort(list, opts)
 		page := selectTorrentPage{
 			ID:       q.id,
 			Select:   q.selectTorrent,
@@ -146,7 +159,50 @@ func (s *Server) selectMovieTorrent(ctx *gin.Context, l *log.Entry, q *addQuery,
 	}
 
 	// Auto selection of torrent
-	selected := s.Selector.SelectMovie(l, criteria, list)
+	selected := s.Selector.Select(list, opts)
+	q.torrent = *selected.Link
+	return true
+}
+
+func (s *Server) selectMusicTorrent(ctx *gin.Context, l *log.Entry, q *addQuery, m model.Music) bool {
+	l = l.WithField("media-type", "music").WithField("title", m.Title())
+
+	// Search torrents
+	list, err := s.DiscoveryService.SearchMusicTorrents(ctx, m)
+	if err != nil {
+		l.Errorf("Search torrents failed: %s", err)
+		displayError(ctx, http.StatusInternalServerError, "Search torrents failed")
+		return false
+	}
+
+	if len(list) == 0 {
+		l.Warnf("Nothing found")
+		displayError(ctx, http.StatusNotFound, "Nothing found")
+		return false
+	}
+
+	opts := selector.Options{
+		Log:         l,
+		Criteria:    s.SelectCriterion,
+		MediaType:   media.Music,
+		Query:       m.Title(),
+		Discography: m.IsArtist(),
+	}
+
+	// Select concrete torrent manually by user
+	if q.selectTorrent {
+		s.Selector.Sort(list, opts)
+		page := selectTorrentPage{
+			ID:       q.id,
+			Select:   q.selectTorrent,
+			Torrents: list,
+		}
+		ctx.HTML(http.StatusOK, "multimedia.download.select.tmpl", &page)
+		return false
+	}
+
+	// Auto selection of torrent
+	selected := s.Selector.Select(list, opts)
 	q.torrent = *selected.Link
 	return true
 }

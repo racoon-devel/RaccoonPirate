@@ -3,15 +3,8 @@ package model
 import (
 	"encoding/json"
 
+	"github.com/RacoonMediaServer/rms-media-discovery/pkg/media"
 	"github.com/RacoonMediaServer/rms-media-discovery/pkg/model"
-)
-
-type MediaType uint
-
-const (
-	MediaTypeMovie MediaType = iota
-	MediaTypeArtist
-	MediaTypeOther
 )
 
 type Torrent struct {
@@ -22,7 +15,7 @@ type Torrent struct {
 	Title string
 
 	// Type is suggested type of torrent's content
-	Type MediaType
+	Type media.ContentType
 
 	// BelongsTo means relation to discovered film, tv-series or artist
 	BelongsTo string
@@ -49,9 +42,18 @@ func (t *Torrent) GetGenres() []string {
 }
 
 func (t *Torrent) ExpandByMovie(mov *model.Movie) {
-	t.Type = MediaTypeMovie
+	t.Type = media.Movies
 	t.BelongsTo = mov.Title
 	t.Year = mov.Year
 	t.MediaID = mov.ID
 	t.SetGenres(mov.Genres)
+}
+
+func (t *Torrent) ExpandByMusic(m model.Music) {
+	t.Type = media.Music
+	if m.IsArtist() {
+		t.BelongsTo = m.AsArtist().Name
+	} else if m.IsAlbum() {
+		t.BelongsTo = m.AsAlbum().Artist
+	}
 }

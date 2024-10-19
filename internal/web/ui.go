@@ -3,8 +3,8 @@ package web
 import (
 	"net/http"
 
+	"github.com/RacoonMediaServer/rms-media-discovery/pkg/media"
 	"github.com/gin-gonic/gin"
-	"github.com/racoon-devel/raccoon-pirate/internal/model"
 )
 
 type uiPage struct {
@@ -43,15 +43,15 @@ func iotaSeasons(count uint) []uint {
 	return result
 }
 
-func decodeMediaType(t string) model.MediaType {
+func decodeMediaType(t string) media.ContentType {
 	switch t {
 	case "movies":
-		return model.MediaTypeMovie
+		return media.Movies
 	case "music":
-		return model.MediaTypeArtist
+		return media.Music
 	case "others":
-		return model.MediaTypeOther
+		return media.Other
 	default:
-		return model.MediaTypeMovie
+		return media.Movies
 	}
 }

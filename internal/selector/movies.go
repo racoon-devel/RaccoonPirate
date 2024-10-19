@@ -1,16 +1,14 @@
 package selector
 
 import (
-	"sort"
 	"strings"
 
 	"github.com/RacoonMediaServer/rms-media-discovery/pkg/client/models"
 	"github.com/antzucaro/matchr"
-	"github.com/apex/log"
 )
 
-func (s MediaSelector) getMovieRankFunction(criteria Criteria) rankFunc {
-	switch criteria {
+func (s selection) getMovieRankFunction() rankFunc {
+	switch s.Criteria {
 	case CriteriaQuality:
 		return makeRankFunc(s.limitBySize, s.rankByQuality, s.rankWeight(2, s.getRankByVoiceFunc()))
 	case CriteriaFastest:
@@ -21,29 +19,7 @@ func (s MediaSelector) getMovieRankFunction(criteria Criteria) rankFunc {
 	panic("unknown criteria")
 }
 
-func (s MediaSelector) SelectMovie(l *log.Entry, criteria Criteria, list []*models.SearchTorrentsResult) *models.SearchTorrentsResult {
-	rank := s.getMovieRankFunction(criteria)
-	ranks := rank(l, list)
-	_, _, best := findMax(ranks, func(elem float32) float32 {
-		return elem
-	})
-	for i := range ranks {
-		l.Debugf("%d rank: %.4f", i, ranks[i])
-	}
-	sel := list[best]
-	l.Infof("Selected { Title: %s, Voice: %s, Size: %d, Seeders: %d, Quality: %s }", getString(sel.Title), sel.Voice, getValue(sel.Size), getValue(sel.Seeders), sel.Quality)
-	return sel
-}
-
-func (s MediaSelector) SortMovies(l *log.Entry, criteria Criteria, list []*models.SearchTorrentsResult) {
-	rank := s.getMovieRankFunction(criteria)
-	ranks := rank(l, list)
-	sort.SliceStable(list, func(i, j int) bool {
-		return ranks[j] < ranks[i]
-	})
-}
-
-func (s MediaSelector) rankBySeasons(l *log.Entry, list []*models.SearchTorrentsResult) []float32 {
+func (s selection) rankBySeasons(list []*models.SearchTorrentsResult) []float32 {
 	ranks := make([]float32, len(list))
 	_, max, _ := findMax(list, func(t *models.SearchTorrentsResult) int {
 		return len(t.Seasons)
@@ -56,16 +32,16 @@ func (s MediaSelector) rankBySeasons(l *log.Entry, list []*models.SearchTorrents
 	return ranks
 }
 
-func (s MediaSelector) getRankByVoiceFunc() rankFunc {
-	return func(l *log.Entry, list []*models.SearchTorrentsResult) []float32 {
+func (s selection) getRankByVoiceFunc() rankFunc {
+	return func(list []*models.SearchTorrentsResult) []float32 {
 		if s.Voice == "" {
-			return s.rankByVoiceList(l, list)
+			return s.rankByVoiceList(list)
 		}
-		return s.rankByVoice(l, list)
+		return s.rankByVoice(list)
 	}
 }
 
-func (s MediaSelector) rankByVoiceList(l *log.Entry, list []*models.SearchTorrentsResult) []float32 {
+func (s selection) rankByVoiceList(list []*models.SearchTorrentsResult) []float32 {
 	ranks := make([]float32, len(list))
 	perItemWeight := 1 / float32(len(s.VoiceList))
 	for i, t := range list {
@@ -75,7 +51,7 @@ func (s MediaSelector) rankByVoiceList(l *log.Entry, list []*models.SearchTorren
 			for _, w := range voice {
 				if strings.Index(tVoice, w) >= 0 {
 					ranks[i] = float32(len(s.VoiceList)-j) * perItemWeight
-					l.Debugf("%d rank by voice list: %.4f", i, ranks[i])
+					s.log().Debugf("%d rank by voice list: %.4f", i, ranks[i])
 					break ScanVoice
 				}
 			}
@@ -84,7 +60,7 @@ func (s MediaSelector) rankByVoiceList(l *log.Entry, list []*models.SearchTorren
 	return ranks
 }
 
-func (s MediaSelector) rankByVoice(l *log.Entry, list []*models.SearchTorrentsResult) []float32 {
+func (s selection) rankByVoice(list []*models.SearchTorrentsResult) []float32 {
 	ranks := make([]float32, len(list))
 	distance := make([]int, len(list))
 
@@ -99,7 +75,7 @@ func (s MediaSelector) rankByVoice(l *log.Entry, list []*models.SearchTorrentsRe
 	})
 	for j, d := range distance {
 		ranks[j] = 1 - (float32(d) / float32(max))
-		l.Debugf("%d rank by voice: %.4f", j, ranks[j])
+		s.log().Debugf("%d rank by voice: %.4f", j, ranks[j])
 	}
 	return ranks
 }

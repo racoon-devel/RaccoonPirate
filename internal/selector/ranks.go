@@ -2,12 +2,11 @@ package selector
 
 import (
 	"github.com/RacoonMediaServer/rms-media-discovery/pkg/client/models"
-	"github.com/apex/log"
 )
 
-func (s MediaSelector) rankWeight(weight float32, f rankFunc) rankFunc {
-	return func(l *log.Entry, list []*models.SearchTorrentsResult) []float32 {
-		ranks := f(l, list)
+func (s selection) rankWeight(weight float32, f rankFunc) rankFunc {
+	return func(list []*models.SearchTorrentsResult) []float32 {
+		ranks := f(list)
 		for i := range ranks {
 			ranks[i] = weight * ranks[i]
 		}
@@ -15,7 +14,7 @@ func (s MediaSelector) rankWeight(weight float32, f rankFunc) rankFunc {
 	}
 }
 
-func (s MediaSelector) rankBySize(l *log.Entry, list []*models.SearchTorrentsResult) []float32 {
+func (s selection) rankBySize(list []*models.SearchTorrentsResult) []float32 {
 	ranks := make([]float32, len(list))
 	_, max, _ := findMax(list, func(t *models.SearchTorrentsResult) int64 {
 		return getValue(t.Size)
@@ -23,12 +22,12 @@ func (s MediaSelector) rankBySize(l *log.Entry, list []*models.SearchTorrentsRes
 
 	for i, t := range list {
 		ranks[i] = 1 - (float32(getValue(t.Size)) / float32(max))
-		l.Debugf("%d rank by size: %.4f", i, ranks[i])
+		s.log().Debugf("%d rank by size: %.4f", i, ranks[i])
 	}
 	return ranks
 }
 
-func (s MediaSelector) limitBySize(l *log.Entry, list []*models.SearchTorrentsResult) []float32 {
+func (s selection) limitBySize(list []*models.SearchTorrentsResult) []float32 {
 	ranks := make([]float32, len(list))
 
 	for i, t := range list {
@@ -40,14 +39,14 @@ func (s MediaSelector) limitBySize(l *log.Entry, list []*models.SearchTorrentsRe
 
 		if size < s.MinSeasonSizeMB*seasons || size >= s.MaxSeasonSizeMB*seasons {
 			ranks[i] = -1
-			l.Debugf("%d limit by size: %.4f", i, ranks[i])
+			s.log().Debugf("%d limit by size: %.4f", i, ranks[i])
 		}
 
 	}
 	return ranks
 }
 
-func (s MediaSelector) rankBySeeders(l *log.Entry, list []*models.SearchTorrentsResult) []float32 {
+func (s selection) rankBySeeders(list []*models.SearchTorrentsResult) []float32 {
 	ranks := make([]float32, len(list))
 	_, max, _ := findMax(list, func(t *models.SearchTorrentsResult) int64 {
 		return getValue(t.Seeders)
@@ -60,12 +59,12 @@ func (s MediaSelector) rankBySeeders(l *log.Entry, list []*models.SearchTorrents
 		} else {
 			ranks[i] = 1
 		}
-		l.Debugf("%d rank by seeders: %.4f", i, ranks[i])
+		s.log().Debugf("%d rank by seeders: %.4f", i, ranks[i])
 	}
 	return ranks
 }
 
-func (s MediaSelector) rankByQuality(l *log.Entry, list []*models.SearchTorrentsResult) []float32 {
+func (s selection) rankByQuality(list []*models.SearchTorrentsResult) []float32 {
 	ranks := make([]float32, len(list))
 	perQualityWeight := 1 / float32(len(s.QualityPrior))
 	for i, t := range list {
@@ -75,7 +74,7 @@ func (s MediaSelector) rankByQuality(l *log.Entry, list []*models.SearchTorrents
 				break
 			}
 		}
-		l.Debugf("%d rank by quality: %.4f", i, ranks[i])
+		s.log().Debugf("%d rank by quality: %.4f", i, ranks[i])
 	}
 
 	return ranks

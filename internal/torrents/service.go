@@ -9,6 +9,7 @@ import (
 	tConfig "github.com/RacoonMediaServer/distribyted/config"
 	"github.com/RacoonMediaServer/distribyted/fuse"
 	"github.com/RacoonMediaServer/distribyted/torrent"
+	"github.com/RacoonMediaServer/rms-media-discovery/pkg/media"
 	"github.com/anacrolix/missinggo/v2/filecache"
 	aTorrent "github.com/anacrolix/torrent"
 	"github.com/anacrolix/torrent/storage"
@@ -113,7 +114,7 @@ func (s *Service) Add(record *model.Torrent, content []byte) error {
 	return nil
 }
 
-func (s *Service) GetTorrentsList(mediaType model.MediaType) ([]*model.Torrent, error) {
+func (s *Service) GetTorrentsList(mediaType media.ContentType) ([]*model.Torrent, error) {
 	return s.db.LoadTorrents(mediaType)
 }
 

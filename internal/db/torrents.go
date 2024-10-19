@@ -3,6 +3,7 @@ package db
 import (
 	"errors"
 
+	"github.com/RacoonMediaServer/rms-media-discovery/pkg/media"
 	"github.com/ostafen/clover/v2/document"
 	"github.com/ostafen/clover/v2/query"
 	"github.com/racoon-devel/raccoon-pirate/internal/model"
@@ -24,7 +25,7 @@ func (d *Database) RemoveTorrent(id string) error {
 	return d.conn.Delete(query.NewQuery(torrentsCollection).Where(query.Field("ID").Eq(id)))
 }
 
-func (d *Database) loadTorrents(t *model.MediaType) ([]*model.Torrent, error) {
+func (d *Database) loadTorrents(t *media.ContentType) ([]*model.Torrent, error) {
 	q := query.NewQuery(torrentsCollection)
 	if t != nil {
 		q = q.Where(query.Field("Type").Eq(*t))
@@ -48,6 +49,6 @@ func (d *Database) LoadAllTorrents() ([]*model.Torrent, error) {
 	return d.loadTorrents(nil)
 }
 
-func (d *Database) LoadTorrents(mediaType model.MediaType) ([]*model.Torrent, error) {
+func (d *Database) LoadTorrents(mediaType media.ContentType) ([]*model.Torrent, error) {
 	return d.loadTorrents(&mediaType)
 }

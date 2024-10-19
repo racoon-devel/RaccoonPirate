@@ -57,13 +57,13 @@ func main() {
 			DiscoveryService: discoveryService,
 			TorrentService:   torrentService,
 			SelectCriterion:  conf.Selector.GetCriterion(),
-			Selector: selector.MediaSelector{
+			Selector: selector.New(selector.Settings{
 				MinSeasonSizeMB:     int64(conf.Selector.MinSeasonSize),
 				MaxSeasonSizeMB:     int64(conf.Selector.MaxSeasonSize),
 				MinSeedersThreshold: int64(conf.Selector.MinSeedersThreshold),
 				QualityPrior:        conf.Selector.Quality,
 				VoiceList:           selector.Voices(conf.Selector.Voices),
-			},
+			}),
 		}
 
 		if err = server.Run(conf.Frontend.Http.Host, conf.Frontend.Http.Port); err != nil {

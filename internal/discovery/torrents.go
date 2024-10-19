@@ -24,24 +24,8 @@ func wait(ctx context.Context, interval time.Duration) error {
 	}
 }
 
-func (s *Service) SearchTorrents(ctx context.Context, mov *model.Movie, season *int64) ([]*models.SearchTorrentsResult, error) {
-	year := int64(mov.Year)
-
-	req := torrents.SearchTorrentsAsyncParams{
-		SearchParameters: torrents.SearchTorrentsAsyncBody{
-			Limit:  int64(searchResultsLimit),
-			Q:      &mov.Title,
-			Strong: asPtr(true),
-			Type:   "movies",
-			Year:   year,
-		},
-		Context: ctx,
-	}
-	if season != nil {
-		req.SearchParameters.Season = *season
-	}
-
-	task, err := s.cli.Torrents.SearchTorrentsAsync(&req, s.auth)
+func (s *Service) searchTorrents(ctx context.Context, req *torrents.SearchTorrentsAsyncParams) ([]*models.SearchTorrentsResult, error) {
+	task, err := s.cli.Torrents.SearchTorrentsAsync(req, s.auth)
 	if err != nil {
 		return nil, err
 	}
@@ -62,6 +46,47 @@ func (s *Service) SearchTorrents(ctx context.Context, mov *model.Movie, season *
 			return resp.Payload.Results, nil
 		}
 	}
+}
+
+func (s *Service) SearchMovieTorrents(ctx context.Context, mov *model.Movie, season *int64) ([]*models.SearchTorrentsResult, error) {
+	year := int64(mov.Year)
+
+	req := torrents.SearchTorrentsAsyncParams{
+		SearchParameters: torrents.SearchTorrentsAsyncBody{
+			Limit:  int64(searchResultsLimit),
+			Q:      &mov.Title,
+			Strong: asPtr(true),
+			Type:   "movies",
+			Year:   year,
+		},
+		Context: ctx,
+	}
+	if season != nil {
+		req.SearchParameters.Season = *season
+	}
+
+	return s.searchTorrents(ctx, &req)
+}
+
+func (s *Service) SearchMusicTorrents(ctx context.Context, m model.Music) ([]*models.SearchTorrentsResult, error) {
+	q := m.Title()
+	discrography := m.IsArtist()
+
+	if m.IsAlbum() {
+		q = m.AsAlbum().Artist + " " + q
+	}
+	req := torrents.SearchTorrentsAsyncParams{
+		SearchParameters: torrents.SearchTorrentsAsyncBody{
+			Limit:       int64(searchResultsLimit),
+			Q:           &q,
+			Strong:      asPtr(false),
+			Type:        "music",
+			Discography: &discrography,
+		},
+		Context: ctx,
+	}
+
+	return s.searchTorrents(ctx, &req)
 }
 
 func (s *Service) GetTorrent(ctx context.Context, link string) ([]byte, error) {
