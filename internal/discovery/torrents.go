@@ -3,6 +3,9 @@ package discovery
 import (
 	"bytes"
 	"context"
+	"errors"
+	"time"
+
 	"github.com/RacoonMediaServer/rms-media-discovery/pkg/client/client/torrents"
 	"github.com/RacoonMediaServer/rms-media-discovery/pkg/client/models"
 	"github.com/RacoonMediaServer/rms-media-discovery/pkg/model"
@@ -12,25 +15,53 @@ func asPtr[T any](val T) *T {
 	return &val
 }
 
+func wait(ctx context.Context, interval time.Duration) error {
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case <-time.After(interval):
+		return nil
+	}
+}
+
 func (s *Service) SearchTorrents(ctx context.Context, mov *model.Movie, season *int64) ([]*models.SearchTorrentsResult, error) {
 	year := int64(mov.Year)
 
-	req := torrents.SearchTorrentsParams{
-		Limit:   asPtr[int64](searchResultsLimit),
-		Q:       mov.Title,
-		Season:  season,
-		Strong:  asPtr(true),
-		Type:    asPtr("movies"),
-		Year:    &year,
+	req := torrents.SearchTorrentsAsyncParams{
+		SearchParameters: torrents.SearchTorrentsAsyncBody{
+			Limit:  int64(searchResultsLimit),
+			Q:      &mov.Title,
+			Strong: asPtr(true),
+			Type:   "movies",
+			Year:   year,
+		},
 		Context: ctx,
 	}
+	if season != nil {
+		req.SearchParameters.Season = *season
+	}
 
-	resp, err := s.cli.Torrents.SearchTorrents(&req, s.auth)
+	task, err := s.cli.Torrents.SearchTorrentsAsync(&req, s.auth)
 	if err != nil {
 		return nil, err
 	}
+	defer s.cli.Torrents.SearchTorrentsAsyncCancel(&torrents.SearchTorrentsAsyncCancelParams{ID: task.Payload.ID}, s.auth)
 
-	return resp.Payload.Results, nil
+	for {
+		if err = wait(ctx, time.Duration(task.Payload.PollIntervalMs)*time.Millisecond); err != nil {
+			return nil, err
+		}
+		resp, err := s.cli.Torrents.SearchTorrentsAsyncStatus(&torrents.SearchTorrentsAsyncStatusParams{ID: task.Payload.ID, Context: ctx}, s.auth)
+		if err != nil {
+			return nil, err
+		}
+		switch *resp.Payload.Status {
+		case "error":
+			return nil, errors.New(resp.Payload.Error)
+		case "ready":
+			return resp.Payload.Results, nil
+		}
+	}
 }
 
 func (s *Service) GetTorrent(ctx context.Context, link string) ([]byte, error) {
