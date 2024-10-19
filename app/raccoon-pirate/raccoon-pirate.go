@@ -80,7 +80,7 @@ func main() {
 	log.Info("Shutdowning")
 }
 
-func printRegisteredTorrents(dbase *db.Database) {
+func printRegisteredTorrents(dbase db.Database) {
 	out := "Registered torrents:\n"
 	list, err := dbase.LoadAllTorrents()
 	if err != nil {

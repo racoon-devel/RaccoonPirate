@@ -125,11 +125,19 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "directory"
+        "directory",
+        "driver"
       ],
       "properties": {
         "directory": {
           "type": "string"
+        },
+        "driver": {
+          "type": "string",
+          "enum": [
+            "json",
+            "cloverdb"
+          ]
         },
         "limit": {
           "type": "integer",

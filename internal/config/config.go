@@ -34,6 +34,7 @@ type Discovery struct {
 
 type Storage struct {
 	Directory   string
+	Driver      string
 	Limit       uint
 	AddTimeout  uint `json:"add-timeout"`
 	ReadTimeout uint `json:"read-timeout"`

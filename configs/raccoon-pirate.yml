@@ -25,6 +25,10 @@ storage:
   # Directory for temporary store data
   directory: "media"
 
+  # How to store database
+  # enum: "json"|"cloverdb"
+  driver: "json"
+
   # Limit size of the directory (Gb), 0 means no limitation
   limit: 5
 
