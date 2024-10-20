@@ -31,8 +31,12 @@ type Service struct {
 }
 
 func New(cfg config.Storage, db Database) (*Service, error) {
+	absPath, err := filepath.Abs(cfg.Directory)
+	if err != nil {
+		return nil, err
+	}
 	s := Service{
-		layout: newLayout(cfg.Directory),
+		layout: newLayout(absPath),
 		db:     db,
 		l:      log.WithField("from", "torrent-service"),
 	}
@@ -124,6 +128,10 @@ func (s *Service) Remove(torrent string) error {
 	}
 
 	return s.db.RemoveTorrent(torrent)
+}
+
+func (s *Service) GetContentDirectory() string {
+	return filepath.Join(s.layout.contentDir, mainRoute)
 }
 
 func (s *Service) Stop() {

@@ -42,8 +42,9 @@ type Storage struct {
 }
 
 type Representation struct {
+	Enabled    bool
+	Directory  string
 	Categories struct {
-		Enabled  bool
 		Type     bool
 		Alphabet bool
 		Genres   bool

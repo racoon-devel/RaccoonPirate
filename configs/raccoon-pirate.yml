@@ -23,7 +23,7 @@ discovery:
 # Media storage options
 storage:
   # Directory for temporary store data
-  directory: "media"
+  directory: "raccoon-pirate-storage"
 
   # How to store database
   # enum: "json"|"cloverdb"
@@ -43,13 +43,16 @@ storage:
 
 # Setup representation of registered content
 representation:
+  # If disabled an entire content is available as flat style list,
+  # If enabled - a content split to categories Movies, Music, Other and then
+  # split by following subcategories
+  enabled: true
+
+  # Path to folder, which will contains structures hierarchy of symlinks to content
+  directory: "media"
+
   # Split content to categories
   categories:
-    # If disabled an entire content is available as flat style list,
-    # If enabled - a content split to categories Movies, Music, Other and then
-    # split by following subcategories
-    enabled: true
-
     # For movies - split to Films and TvSeries folders
     type: true 
 

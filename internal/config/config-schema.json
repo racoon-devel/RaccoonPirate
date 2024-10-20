@@ -92,15 +92,19 @@
     "representation": {
       "type": "object",
       "additionalProperties": false,
+      "required": ["directory"],
       "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": "true"
+        },
+        "directory": {
+          "type": "string"
+        },
         "categories": {
           "type": "object",
           "additionalProperties": false,
           "properties": {
-            "enabled": {
-              "type": "boolean",
-              "default": "true"
-            },
             "type": {
               "type": "boolean",
               "default": "true"

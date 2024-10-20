@@ -28,6 +28,9 @@ type Torrent struct {
 
 	// MediaID is an ID of discovered item. Not used, but may be useful in the feature
 	MediaID string
+
+	// MovieType is required for organize movies to categories Films and TV-Series
+	MovieType model.MovieType
 }
 
 func (t *Torrent) SetGenres(list []string) {
@@ -46,6 +49,7 @@ func (t *Torrent) ExpandByMovie(mov *model.Movie) {
 	t.BelongsTo = mov.Title
 	t.Year = mov.Year
 	t.MediaID = mov.ID
+	t.MovieType = mov.Type
 	t.SetGenres(mov.Genres)
 }
 

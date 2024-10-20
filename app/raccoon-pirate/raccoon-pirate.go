@@ -11,6 +11,7 @@ import (
 	"github.com/racoon-devel/raccoon-pirate/internal/config"
 	"github.com/racoon-devel/raccoon-pirate/internal/db"
 	"github.com/racoon-devel/raccoon-pirate/internal/discovery"
+	"github.com/racoon-devel/raccoon-pirate/internal/representation"
 	"github.com/racoon-devel/raccoon-pirate/internal/selector"
 	"github.com/racoon-devel/raccoon-pirate/internal/torrents"
 	"github.com/racoon-devel/raccoon-pirate/internal/web"
@@ -49,6 +50,11 @@ func main() {
 		log.Fatalf("Start torrent service failed: %s", err)
 	}
 	defer torrentService.Stop()
+
+	reprService := representation.New(conf.Representation, torrentService.GetContentDirectory())
+	if err = reprService.Initialize(dbase); err != nil {
+		log.Errorf("Create representation failed: %s", err)
+	}
 
 	discoveryService := discovery.NewService(conf.Discovery)
 
