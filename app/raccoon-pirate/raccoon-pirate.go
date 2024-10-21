@@ -45,16 +45,14 @@ func main() {
 
 	printRegisteredTorrents(dbase)
 
-	torrentService, err := torrents.New(conf.Storage, dbase)
+	reprService := representation.New(conf.Representation)
+	defer reprService.Clean()
+
+	torrentService, err := torrents.New(conf.Storage, dbase, reprService)
 	if err != nil {
 		log.Fatalf("Start torrent service failed: %s", err)
 	}
 	defer torrentService.Stop()
-
-	reprService := representation.New(conf.Representation, torrentService.GetContentDirectory())
-	if err = reprService.Initialize(dbase); err != nil {
-		log.Errorf("Create representation failed: %s", err)
-	}
 
 	discoveryService := discovery.NewService(conf.Discovery)
 

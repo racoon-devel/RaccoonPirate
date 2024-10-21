@@ -23,6 +23,7 @@ type Service struct {
 	l      *log.Entry
 	layout layout
 	db     Database
+	rep    RepresentationService
 
 	fuse      *fuse.Handler
 	fileStore *torrent.FileItemStore
@@ -30,15 +31,22 @@ type Service struct {
 	service   *torrent.Service
 }
 
-func New(cfg config.Storage, db Database) (*Service, error) {
+func New(cfg config.Storage, db Database, rep RepresentationService) (*Service, error) {
 	absPath, err := filepath.Abs(cfg.Directory)
 	if err != nil {
 		return nil, err
 	}
+
+	torrents, err := db.LoadAllTorrents()
+	if err != nil {
+		return nil, err
+	}
+
 	s := Service{
 		layout: newLayout(absPath),
 		db:     db,
 		l:      log.WithField("from", "torrent-service"),
+		rep:    rep,
 	}
 	if err := s.layout.makeLayout(); err != nil {
 		return nil, err
@@ -89,6 +97,10 @@ func New(cfg config.Storage, db Database) (*Service, error) {
 		return nil, fmt.Errorf("mount fuse directory: %w", err)
 	}
 
+	for _, t := range torrents {
+		rep.Register(t, filepath.Join(s.layout.contentDir, mainRoute, t.Title))
+	}
+
 	s.fuse = mh
 	s.fileStore = fileStorage
 	s.cli = cli
@@ -106,6 +118,8 @@ func (s *Service) Add(record *model.Torrent, content []byte) error {
 	record.ID = uuid.NewV4().String()
 	record.Title = title
 
+	s.rep.Register(record, filepath.Join(s.layout.contentDir, mainRoute, title))
+
 	if err = os.WriteFile(filepath.Join(s.layout.torrentsDir, fmt.Sprintf("%s.torrent", record.ID)), content, 0744); err != nil {
 		s.l.Errorf("Create torrent faile failed: %s", err)
 		return nil
@@ -122,12 +136,18 @@ func (s *Service) GetTorrentsList(mediaType media.ContentType) ([]*model.Torrent
 	return s.db.LoadTorrents(mediaType)
 }
 
-func (s *Service) Remove(torrent string) error {
-	if err := s.layout.Remove(torrent); err != nil {
+func (s *Service) Remove(id string) error {
+	if err := s.layout.Remove(id); err != nil {
 		return err
 	}
 
-	return s.db.RemoveTorrent(torrent)
+	t, err := s.db.GetTorrent(id)
+	if err != nil {
+		return err
+	}
+
+	s.rep.Unregister(t)
+	return s.db.RemoveTorrent(id)
 }
 
 func (s *Service) GetContentDirectory() string {

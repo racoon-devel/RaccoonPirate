@@ -16,11 +16,7 @@ type jsonDb struct {
 }
 
 type fileSchema struct {
-	Torrents []*model.Torrent
-}
-
-func remove[T any](slice []T, s int) []T {
-	return append(slice[:s], slice[s+1:]...)
+	Torrents map[string]*model.Torrent
 }
 
 func newJsonDB(cfg config.Storage) (Database, error) {
@@ -67,8 +63,12 @@ func (d *jsonDb) save(content *fileSchema) error {
 
 // LoadAllTorrents implements Database.
 func (d *jsonDb) LoadAllTorrents() ([]*model.Torrent, error) {
-	result, err := d.load()
-	return result.Torrents, err
+	content, err := d.load()
+	result := make([]*model.Torrent, 0, len(content.Torrents))
+	for _, t := range content.Torrents {
+		result = append(result, t)
+	}
+	return result, err
 }
 
 // LoadTorrents implements Database.
@@ -93,8 +93,21 @@ func (d *jsonDb) PutTorrent(t *model.Torrent) error {
 	if err != nil {
 		return err
 	}
-	content.Torrents = append(content.Torrents, t)
+	content.Torrents[t.ID] = t
 	return d.save(content)
+}
+
+// GetTorrent implements Database.
+func (d *jsonDb) GetTorrent(id string) (*model.Torrent, error) {
+	content, err := d.load()
+	if err != nil {
+		return &model.Torrent{}, err
+	}
+	result, ok := content.Torrents[id]
+	if !ok {
+		return &model.Torrent{}, errors.New("not found")
+	}
+	return result, nil
 }
 
 // RemoveTorrent implements Database.
@@ -103,16 +116,6 @@ func (d *jsonDb) RemoveTorrent(id string) error {
 	if err != nil {
 		return err
 	}
-	found := false
-	for i, t := range content.Torrents {
-		if t.ID == id {
-			content.Torrents = remove(content.Torrents, i)
-			found = true
-			break
-		}
-	}
-	if !found {
-		return errors.New("not found")
-	}
+	delete(content.Torrents, id)
 	return d.save(content)
 }

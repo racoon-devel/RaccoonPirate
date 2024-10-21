@@ -82,6 +82,17 @@ func (d *cloverDb) loadTorrents(t *media.ContentType) ([]*model.Torrent, error) 
 	return result, nil
 }
 
+// GetTorrent implements Database.
+func (d *cloverDb) GetTorrent(id string) (*model.Torrent, error) {
+	result := model.Torrent{}
+	doc, err := d.conn.FindFirst(query.NewQuery(torrentsCollection).Where(query.Field("ID").Eq(id)))
+	if err != nil {
+		return &result, err
+	}
+	err = doc.Unmarshal(&result)
+	return &result, err
+}
+
 func (d *cloverDb) LoadAllTorrents() ([]*model.Torrent, error) {
 	return d.loadTorrents(nil)
 }

@@ -1,7 +1,7 @@
 package representation
 
 import (
-	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -15,45 +15,34 @@ import (
 
 const mediaPerms = 0755
 
-type Service struct {
-	l          *log.Entry
-	cfg        config.Representation
-	flat       bool
-	contentDir string
+type Service interface {
+	Register(t *model.Torrent, pathToContent string)
+	Unregister(t *model.Torrent)
+	Clean()
 }
 
-func New(cfg config.Representation, contentDirectory string) *Service {
-	return &Service{
-		l:          log.WithField("from", "representation"),
-		cfg:        cfg,
-		flat:       !cfg.Categories.Alphabet && !cfg.Categories.Genres && !cfg.Categories.Type && !cfg.Categories.Year,
-		contentDir: contentDirectory,
+type serviceImpl struct {
+	l    *log.Entry
+	cfg  config.Representation
+	flat bool
+}
+
+func New(cfg config.Representation) Service {
+	if !cfg.Enabled {
+		return &disabledImpl{}
+	}
+
+	_ = os.RemoveAll(cfg.Directory)
+
+	return &serviceImpl{
+		l:    log.WithField("from", "representation"),
+		cfg:  cfg,
+		flat: !cfg.Categories.Alphabet && !cfg.Categories.Genres && !cfg.Categories.Type && !cfg.Categories.Year,
 	}
 }
 
-func (s *Service) Initialize(db Storage) error {
-	if !s.cfg.Enabled {
-		return nil
-	}
-
-	_ = os.RemoveAll(s.cfg.Directory)
-	if err := os.MkdirAll(s.cfg.Directory, mediaPerms); err != nil {
-		return fmt.Errorf("create representation directory failed: %s", err)
-	}
-
-	torrents, err := db.LoadAllTorrents()
-	if err != nil {
-		return fmt.Errorf("load torrents failed: %s", err)
-	}
-
-	for _, t := range torrents {
-		s.createTorrentLayout(t)
-	}
-	return nil
-}
-
-func (s *Service) mapTorrent(t *model.Torrent) []string {
-	basePath := filepath.Join(s.cfg.Directory, mapMediaTypeToDir(t.Type))
+func (s *serviceImpl) mapTorrent(t *model.Torrent) []string {
+	basePath := mapMediaTypeToDir(t.Type)
 	if t.BelongsTo == "" || s.flat || t.Type == media.Other {
 		return []string{basePath}
 	}
@@ -82,18 +71,61 @@ func (s *Service) mapTorrent(t *model.Torrent) []string {
 	return result
 }
 
-func (s *Service) createTorrentLayout(t *model.Torrent) {
-	var err error
+func (s *serviceImpl) Register(t *model.Torrent, pathToContent string) {
 	layout := s.mapTorrent(t)
 	symlink := escape(t.Title)
 	for _, dir := range layout {
-		if err = os.MkdirAll(dir, mediaPerms); err != nil {
-			s.l.Warnf("Create directory '%s' failed: %s", dir, err)
+		fullPath := filepath.Join(s.cfg.Directory, dir)
+		if err := os.MkdirAll(fullPath, mediaPerms); err != nil {
+			s.l.Warnf("Create directory '%s' failed: %s", fullPath, err)
 			continue
 		}
-		content := filepath.Join(s.contentDir, t.Title)
-		if err = os.Symlink(content, filepath.Join(dir, symlink)); err != nil {
-			s.l.Warnf("Create symlink to '%s' failed: %s", content, err)
+		if err := os.Symlink(pathToContent, filepath.Join(fullPath, symlink)); err != nil {
+			s.l.Warnf("Create symlink to '%s' failed: %s", pathToContent, err)
 		}
 	}
+}
+
+func isEmpty(path string) (bool, error) {
+	f, err := os.Open(path)
+	if err != nil {
+		return false, err
+	}
+	defer f.Close()
+
+	_, err = f.Readdirnames(1)
+	if err == io.EOF {
+		return true, nil
+	}
+	return false, err
+}
+
+func (s *serviceImpl) removeIfEmpty(dir string) {
+	if dir == "" {
+		return
+	}
+	for {
+		path, _ := filepath.Split(dir)
+		fullPath := filepath.Join(s.cfg.Directory, dir)
+		empty, err := isEmpty(fullPath)
+		if err != nil || !empty {
+			return
+		}
+		_ = os.Remove(fullPath)
+		dir = path
+	}
+}
+
+func (s *serviceImpl) Unregister(t *model.Torrent) {
+	layout := s.mapTorrent(t)
+	symlink := escape(t.Title)
+	for _, dir := range layout {
+		_ = os.Remove(filepath.Join(s.cfg.Directory, dir, symlink))
+		s.removeIfEmpty(dir)
+	}
+}
+
+// Clean implements Service.
+func (s *serviceImpl) Clean() {
+	_ = os.RemoveAll(s.cfg.Directory)
 }
