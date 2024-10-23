@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/RacoonMediaServer/rms-media-discovery/pkg/media"
+	"github.com/apex/log"
 	"github.com/racoon-devel/raccoon-pirate/internal/config"
 	"github.com/racoon-devel/raccoon-pirate/internal/model"
 )
@@ -23,7 +24,10 @@ func newJsonDB(cfg config.Storage) (Database, error) {
 	dbPath := filepath.Join(cfg.Directory, "database.db")
 	db := jsonDb{path: dbPath}
 	_, err := os.Stat(dbPath)
-	if errors.Is(err, os.ErrNotExist) {
+	if os.IsNotExist(err) {
+		if err = os.MkdirAll(cfg.Directory, 0755); err != nil {
+			return nil, err
+		}
 		if err = db.save(&fileSchema{}); err != nil {
 			return nil, err
 		}
@@ -56,6 +60,7 @@ func (d *jsonDb) save(content *fileSchema) error {
 		return err
 	}
 	if err = os.WriteFile(d.path, data, 0755); err != nil {
+		log.Errorf("Fail to write to '%s': %s", d.path, err)
 		return err
 	}
 	return nil
@@ -92,6 +97,9 @@ func (d *jsonDb) PutTorrent(t *model.Torrent) error {
 	content, err := d.load()
 	if err != nil {
 		return err
+	}
+	if content.Torrents == nil {
+		content.Torrents = map[string]*model.Torrent{}
 	}
 	content.Torrents[t.ID] = t
 	return d.save(content)

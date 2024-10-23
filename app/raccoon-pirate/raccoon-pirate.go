@@ -88,7 +88,7 @@ func printRegisteredTorrents(dbase db.Database) {
 	out := "Registered torrents:\n"
 	list, err := dbase.LoadAllTorrents()
 	if err != nil {
-		log.Fatalf("Retrieve torrents list failed")
+		log.Fatalf("Retrieve torrents list failed: %s", err)
 	}
 	for _, t := range list {
 		out += fmt.Sprintf("ID: %s, Type: %d, Title: '%s', BelongsTo: '%s'\n", t.ID, t.Type, t.Title, t.BelongsTo)
