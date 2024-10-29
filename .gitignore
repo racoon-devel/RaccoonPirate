@@ -24,4 +24,7 @@ go.work
 my_config.yml
 
 # Default media directory
-media
+storage
+
+# Build directory
+.build

@@ -3,7 +3,7 @@ frontend:
   http:
     enabled: true
     host: "127.0.0.1"
-    port: 8080
+    port: 8081
 
 # Core application settings
 application:
@@ -23,7 +23,7 @@ discovery:
 # Media storage options
 storage:
   # Directory for temporary store data
-  directory: "raccoon-pirate-storage"
+  directory: "storage"
 
   # How to store database
   # enum: "json"|"cloverdb"

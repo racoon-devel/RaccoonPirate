@@ -25,16 +25,36 @@ There are a few frontends enabled:
 * Web UI;
 * Telegram Bot integration (coming soon).
 
-## Dependencies
-
-* libfuse2
-
 ## Supported Platforms
 
 * Linux;
-* Batocera (retro-gaming Linux distro, PirateRacoon supports integration).
+* Batocera on Raspberry PI (retro-gaming Linux distro, PirateRacoon supports integration).
 
 ## Use Case Scenarios
 
 * Watching any discoverable content on the PC/MiniPC by any media player;
 * Install the application on a home server and stream data over network for consuming from various devices (e.g. DLNA servers).  
+
+## Dependencies
+
+* libfuse2
+
+## Build
+
+```shell
+make
+```
+
+### Cross build for Raspberry Pi
+
+Select _target triplet_, which compatible with target Raspberry Pi device from [the table](https://github.com/tttapa/docker-arm-cross-toolchain?tab=readme-ov-file#download). Set the `TARGET_TRIPLET` variable and run `make rpi`. Example for Raspberry Pi 5:
+
+```shell
+TARGET_TRIPLET=aarch64-rpi3-linux-gnu make rpi
+```
+
+_Note_. Output files created with root permissions. Please, fix it manually:
+
+```shell
+sudo chown -R ${USER}:${USER} .build
+```
