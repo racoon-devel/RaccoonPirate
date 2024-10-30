@@ -1,0 +1,17 @@
+#!/bin/bash
+ 
+case "$1" in
+    start)
+        modprobe fuse
+        RP_PATH=/userdata/system/raccoon_pirate
+	    LD_LIBRARY_PATH=${RP_PATH} ${RP_PATH}/raccoon-pirate -config ${RP_PATH}/config.yml &
+        echo "I've started."
+        ;;
+    stop)
+        killall raccoon-pirate
+        echo "I've stopped."
+        ;;
+    status)
+        echo "This is my status."
+        ;;
+esac

@@ -4,5 +4,6 @@ RUN echo "develop" | sudo -S sh -c "echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/
 
 RUN sudo -S apt-get update && \
     sudo apt-get -y upgrade && \
-    sudo apt-get -y install golang-go libfuse-dev && \
+    sudo apt-get -y install golang-go libfuse-dev gettext libtool && \
     sudo apt-get clean autoclean
+    

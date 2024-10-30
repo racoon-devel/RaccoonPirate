@@ -1,0 +1,98 @@
+# Setup frontends
+frontend:
+  http:
+    enabled: true
+    host: "0.0.0.0"
+    port: 8080
+
+# Core application settings
+application:
+  # Automatically check and perform updates
+  auto-update: true
+
+# Torrents discovery remote service credentials
+discovery:
+  identity: "ed950aaa-8b9b-46f5-94fe-e9c074e2adfa"
+  scheme: "https"
+  host: "api.racoondev.top"
+  port: 443
+  path: "/media"
+  # Affects to language of searchable content (ru or en)
+  language: ru
+
+# Media storage options
+storage:
+  # Directory for temporary store data
+  directory: "/userdata/system/raccoon_pirate/storage"
+
+  # How to store database
+  # enum: "json"|"cloverdb"
+  driver: "json"
+
+  # Limit size of the directory (Gb), 0 means no limitation
+  limit: 5
+
+  # Add torent timeout (sec)
+  add-timeout: 60
+
+  # Read content chunk timeout (sec)
+  read-timeout: 60
+
+  # Content chunk time of life (hours)
+  ttl: 24
+
+# Setup representation of registered content
+representation:
+  # If disabled an entire content is available as flat style list,
+  # If enabled - a content split to categories Movies, Music, Other and then
+  # split by following subcategories
+  enabled: true
+
+  # Path to folder, which will contains structures hierarchy of symlinks to content
+  directory: "/userdata/Media"
+
+  # Split content to categories
+  categories:
+    # For movies - split to Films and TvSeries folders
+    type: true 
+
+    # Split content by A, B, C, D
+    alphabet: true
+
+    # Split by genres
+    genres: true
+
+    # Split by year of production
+    year: true
+
+
+# Rules for ranking torrents (auto select option)
+selector:
+  # Criterion for auto-selection (quality, fastest, compact)
+  # (compact means many seasons in the one torrent)
+  criterion: "quality"
+  
+  # Minimum limit size for 1 season of TV series (Mb)
+  min-season-size: 1024
+
+  # Maximum limit size for 1 season of TV series (Mb)
+  max-season-size: 51200
+
+  # Put low priority to torrents with not many seeders
+  min-seeders-threshold: 50
+
+  # Video quality priority (descending)
+  quality:
+    - "1080p"
+    - "720p"
+    - "2160p"
+    - "480p"
+
+  # Voice acting priority (descending)
+  voices:
+    - ["сыендук", "syenduk"]
+    - ["кубик", "кубе", "kubik", "kube"]
+    - ["кураж", "бомбей", "kurazh", "bombej"]
+    - ["lostfilm", "lost"]
+    - ["newstudio"]
+    - ["амедиа", "amedia"]
