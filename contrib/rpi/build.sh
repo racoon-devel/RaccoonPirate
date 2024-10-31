@@ -24,7 +24,7 @@ fi
 
 # Build docker container
 sed -i "s/__TARGET_TRIPLET__/${TARGET_TRIPLET}/" Dockerfile
-docker build --tag raccoon_pirate_rpi_build .
+docker build --tag raccoon_pirate_rpi_build-${TARGET_TRIPLET} .
 
 GO_OPTS="GOARCH=arm"
 if [ "${TARGET_TRIPLET}" == "aarch64-rpi3-linux-gnu" ]; then
@@ -42,4 +42,4 @@ echo ${GO_OPTS}
 # Build raccoon-pirate
 RPI_TOOLCHAIN="/home/develop/opt/x-tools/${TARGET_TRIPLET}/bin/${TARGET_TRIPLET}"
 BUILD_CMD="cd /home/develop/RaccoonPirate && sudo CGO_ENABLED=1 ${GO_OPTS} CC=${RPI_TOOLCHAIN}-gcc CXX=${RPI_TOOLCHAIN}-g++ go build -ldflags '${LDFLAGS}' -o /home/develop/build/${BINARY_NAME} ${SOURCE_MAIN} && sudo chown -R ${UID}:${UID} /home/develop/build"
-docker run --rm -v ./build:/home/develop/build -v ${SOURCE_DIR}:/home/develop/RaccoonPirate:ro -it raccoon_pirate_rpi_build /bin/bash -c "${BUILD_CMD}"
+docker run --rm -v ./build:/home/develop/build -v ${SOURCE_DIR}:/home/develop/RaccoonPirate:ro -it raccoon_pirate_rpi_build-${TARGET_TRIPLET} /bin/bash -c "${BUILD_CMD}"
