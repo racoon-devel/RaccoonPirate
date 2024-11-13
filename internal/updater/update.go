@@ -2,6 +2,8 @@ package updater
 
 import (
 	"fmt"
+	"os"
+	"os/exec"
 
 	"github.com/apex/log"
 	"github.com/blang/semver"
@@ -57,4 +59,24 @@ func (u Updater) TryUpdate() (updated bool, err error) {
 
 	updated, err = u.doSelfUpdate()
 	return
+}
+
+func (u Updater) Restart() error {
+	executablePath, err := os.Executable()
+	if err != nil {
+		return err
+	}
+
+	cmd := exec.Command(executablePath, os.Args[1:]...)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	cmd.Stdin = os.Stdin
+
+	err = cmd.Start()
+	if err != nil {
+		return err
+	}
+
+	os.Exit(0)
+	return nil
 }

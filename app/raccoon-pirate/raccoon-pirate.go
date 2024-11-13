@@ -52,9 +52,16 @@ func main() {
 			CurrentVersion: Version,
 			Storage:        dbase,
 		}
-		_, err = u.TryUpdate()
+
+		updated, err := u.TryUpdate()
 		if err != nil {
 			log.Warnf("Auto update failed: %s", err)
+		}
+		if updated {
+			dbase.Close()
+			if err = u.Restart(); err != nil {
+				log.Fatalf("Restart application after update failed: %s", err)
+			}
 		}
 	}
 
