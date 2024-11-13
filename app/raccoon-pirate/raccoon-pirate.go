@@ -8,6 +8,7 @@ import (
 	"syscall"
 
 	"github.com/apex/log"
+	"github.com/blang/semver"
 	"github.com/racoon-devel/raccoon-pirate/internal/config"
 	"github.com/racoon-devel/raccoon-pirate/internal/db"
 	"github.com/racoon-devel/raccoon-pirate/internal/discovery"
@@ -15,6 +16,7 @@ import (
 	"github.com/racoon-devel/raccoon-pirate/internal/selector"
 	"github.com/racoon-devel/raccoon-pirate/internal/torrents"
 	"github.com/racoon-devel/raccoon-pirate/internal/web"
+	"github.com/rhysd/go-github-selfupdate/selfupdate"
 )
 
 var Version = "0.0.0"
@@ -36,6 +38,12 @@ func main() {
 		log.Fatalf("Load configuration failed: %s", err)
 	}
 	log.Infof("Config: %+v", conf)
+
+	if conf.Application.AutoUpdate {
+		if err = doSelfUpdate(); err != nil {
+			log.Warnf("Auto update failed: %s", err)
+		}
+	}
 
 	dbase, err := db.Open(conf.Storage)
 	if err != nil {
@@ -94,5 +102,25 @@ func printRegisteredTorrents(dbase db.Database) {
 		out += fmt.Sprintf("ID: %s, Type: %d, Title: '%s', BelongsTo: '%s'\n", t.ID, t.Type, t.Title, t.BelongsTo)
 	}
 	log.Info(out)
+}
 
+func doSelfUpdate() error {
+	if Version == "0.0.0" {
+		return nil
+	}
+	v, err := semver.Parse(Version[1:])
+	if err != nil {
+		return err
+	}
+	latest, err := selfupdate.UpdateSelf(v, "racoon-devel/RaccoonPirate")
+	if err != nil {
+		return err
+	}
+
+	if latest.Version.Equals(v) {
+		log.Info("Nothing to update: " + latest.AssetURL)
+		return nil
+	}
+	log.Infof("Successfully updated to %s", latest.Version)
+	return nil
 }
