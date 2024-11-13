@@ -28,3 +28,6 @@ storage
 
 # Build directory
 .build
+
+# Release directory
+.release

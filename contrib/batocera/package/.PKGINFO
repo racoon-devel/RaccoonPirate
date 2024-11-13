@@ -1,7 +1,7 @@
 pkgname = raccoon-pirate
 pkgver = __VERSION__
 pkgdesc = Application for consuming media content from torrent trackers on-the-fly.
-arch = any
+arch = aarch64
 group = misc
 packager = racoon-devel
 url = https://racoondev.top/

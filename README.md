@@ -64,7 +64,7 @@ TARGET_TRIPLET=aarch64-rpi3-linux-gnu make batocera
 Copy composed package to batocera and run:
 
 ```shell
-pacman -U raccoon-pirate-1.0.0-1-any.pkg.tar.zst
+pacman -U raccoon-pirate-1.0.0-1-aarch64.pkg.tar.zst
 batocera-services enable raccoon_pirate
 batocera-services start raccoon_pirate
 ```
