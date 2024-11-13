@@ -18,6 +18,7 @@ type jsonDb struct {
 
 type fileSchema struct {
 	Torrents map[string]*model.Torrent
+	Version  string
 }
 
 func newJsonDB(cfg config.Storage) (Database, error) {
@@ -125,5 +126,24 @@ func (d *jsonDb) RemoveTorrent(id string) error {
 		return err
 	}
 	delete(content.Torrents, id)
+	return d.save(content)
+}
+
+// GetVersion implements Database.
+func (d *jsonDb) GetVersion() (string, error) {
+	content, err := d.load()
+	if err != nil {
+		return "", err
+	}
+	return content.Version, nil
+}
+
+// SetVersion implements Database.
+func (d *jsonDb) SetVersion(version string) error {
+	content, err := d.load()
+	if err != nil {
+		return err
+	}
+	content.Version = version
 	return d.save(content)
 }

@@ -14,7 +14,21 @@ import (
 	"github.com/racoon-devel/raccoon-pirate/internal/model"
 )
 
-const torrentsCollection = "torrents"
+const (
+	torrentsCollection = "torrents"
+	metaCollection     = "meta"
+	versionKey         = "Version"
+)
+
+var knownCollections = []string{
+	torrentsCollection,
+	metaCollection,
+}
+
+type metaInfo struct {
+	Key   string
+	Value string
+}
 
 type cloverDb struct {
 	conn *clover.DB
@@ -32,16 +46,18 @@ func newCloverDB(cfg config.Storage) (Database, error) {
 		return nil, err
 	}
 
-	exists, err := conn.HasCollection(torrentsCollection)
-	if err != nil {
-		_ = conn.Close()
-		return nil, err
-	}
-
-	if !exists {
-		if err = conn.CreateCollection(torrentsCollection); err != nil {
+	for _, collection := range knownCollections {
+		exists, err := conn.HasCollection(collection)
+		if err != nil {
 			_ = conn.Close()
 			return nil, err
+		}
+
+		if !exists {
+			if err = conn.CreateCollection(collection); err != nil {
+				_ = conn.Close()
+				return nil, err
+			}
 		}
 	}
 
@@ -103,4 +119,26 @@ func (d *cloverDb) LoadTorrents(mediaType media.ContentType) ([]*model.Torrent, 
 
 func (d *cloverDb) Close() error {
 	return d.conn.Close()
+}
+
+// GetVersion implements Database.
+func (d *cloverDb) GetVersion() (string, error) {
+	result := metaInfo{}
+	doc, err := d.conn.FindFirst(query.NewQuery(metaCollection).Where(query.Field("Key").Eq(versionKey)))
+	if err != nil {
+		return "", err
+	}
+	err = doc.Unmarshal(&result)
+	return result.Value, err
+}
+
+// SetVersion implements Database.
+func (d *cloverDb) SetVersion(version string) error {
+	doc := document.NewDocumentOf(&metaInfo{Key: versionKey, Value: version})
+	if doc == nil {
+		return errors.New("deserialize document failed")
+	}
+	d.conn.Delete(query.NewQuery(metaCollection).Where(query.Field("Key").Eq(versionKey)))
+	_, err := d.conn.InsertOne(metaCollection, doc)
+	return err
 }

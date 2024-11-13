@@ -11,5 +11,7 @@ type Database interface {
 	LoadAllTorrents() ([]*model.Torrent, error)
 	GetTorrent(id string) (*model.Torrent, error)
 	LoadTorrents(mediaType media.ContentType) ([]*model.Torrent, error)
+	GetVersion() (string, error)
+	SetVersion(version string) error
 	Close() error
 }
