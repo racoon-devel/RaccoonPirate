@@ -12,7 +12,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt install libfuse-dev
+          sudo apt install -y libfuse-dev
       - uses: actions/checkout@v4
       - name: Build
         run: |
