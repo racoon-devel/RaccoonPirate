@@ -31,6 +31,7 @@ func main() {
 
 	if *verbose {
 		log.SetLevel(log.DebugLevel)
+		selfupdate.EnableLog()
 	}
 
 	conf, err := config.Load(*configPath)
