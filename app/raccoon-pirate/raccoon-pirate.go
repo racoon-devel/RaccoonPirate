@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"runtime"
 	"syscall"
 
 	"github.com/apex/log"
@@ -22,7 +23,7 @@ import (
 var Version = "0.0.0"
 
 func main() {
-	log.Infof("raccoon-pirate %s", Version)
+	log.Infof("raccoon-pirate %s [ %s ]", Version, runtime.GOARCH)
 	defer log.Info("DONE")
 
 	configPath := flag.String("config", "/etc/raccoon-pirate/raccoon-pirate.yml", "Path to YAML configuration file")
@@ -119,7 +120,7 @@ func doSelfUpdate() error {
 	}
 
 	if latest.Version.Equals(v) {
-		log.Info("Nothing to update: " + latest.AssetURL)
+		log.Info("Nothing to update")
 		return nil
 	}
 	log.Infof("Successfully updated to %s", latest.Version)

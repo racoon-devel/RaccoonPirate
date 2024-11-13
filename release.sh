@@ -13,14 +13,18 @@ script_dir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 echo "Buidling for host ${arch}..."
 make build
 cp .build/raccoon-pirate .release/raccoon-pirate-linux-${arch}
+if [ "${arch}" = "x86_64" ]; then
+    cp .build/raccoon-pirate .release/raccoon-pirate-linux-amd64
+fi
 make clean
 
-arch="aarch64"
+arch="arm64"
 echo "Building for ${arch}..."
 TARGET_TRIPLET=aarch64-rpi3-linux-gnu make rpi
 cp .build/rpi/build/raccoon-pirate .release/raccoon-pirate-linux-${arch}
 make clean
 
+arch="aarch64"
 echo "Building package for Batocera..."
 TARGET_TRIPLET=aarch64-rpi3-linux-gnu make batocera
 short_version="${version:1}"
