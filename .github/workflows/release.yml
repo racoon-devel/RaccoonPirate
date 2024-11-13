@@ -9,6 +9,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Install dependencies
+        run: |
+          apt update
+          apt install libfuse-dev
       - uses: actions/checkout@v4
       - name: Build
         run: |
