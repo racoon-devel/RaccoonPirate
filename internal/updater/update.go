@@ -13,9 +13,11 @@ import (
 type Updater struct {
 	CurrentVersion string
 	Storage        MetaInfoStorage
+
+	executablePath string
 }
 
-func (u Updater) doSelfUpdate() (bool, error) {
+func (u *Updater) doSelfUpdate() (bool, error) {
 	v, err := semver.Parse(u.CurrentVersion[1:])
 	if err != nil {
 		return false, fmt.Errorf("parse current version failed: %w", err)
@@ -33,7 +35,7 @@ func (u Updater) doSelfUpdate() (bool, error) {
 	return true, nil
 }
 
-func (u Updater) updateStorage() error {
+func (u *Updater) updateStorage() error {
 	previousVersion, err := u.Storage.GetVersion()
 	if err != nil {
 		return fmt.Errorf("failed to load previous version: %s", err)
@@ -48,7 +50,7 @@ func (u Updater) updateStorage() error {
 	return nil
 }
 
-func (u Updater) TryUpdate() (updated bool, err error) {
+func (u *Updater) TryUpdate() (updated bool, err error) {
 	if u.CurrentVersion == "0.0.0" {
 		return
 	}
@@ -57,23 +59,22 @@ func (u Updater) TryUpdate() (updated bool, err error) {
 		log.Warnf("Update database failed: %s", err)
 	}
 
+	u.executablePath, err = os.Executable()
+	if err != nil {
+		log.Warnf("Get current executable path failed: %s", err)
+	}
+
 	updated, err = u.doSelfUpdate()
 	return
 }
 
-func (u Updater) Restart() error {
-	executablePath, err := os.Executable()
-	if err != nil {
-		return err
-	}
-
-	cmd := exec.Command(executablePath, os.Args[1:]...)
+func (u *Updater) Restart() error {
+	cmd := exec.Command(u.executablePath, os.Args[1:]...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.Stdin = os.Stdin
 
-	err = cmd.Start()
-	if err != nil {
+	if err := cmd.Start(); err != nil {
 		return err
 	}
 
