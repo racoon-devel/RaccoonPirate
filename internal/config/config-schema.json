@@ -11,7 +11,8 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "http"
+        "http",
+        "telegram"
       ],
       "properties": {
         "http": {
@@ -34,30 +35,29 @@
               "minimum": 1
             }
           }
-        }
-      }
-    },
-    "application": {
-      "type": "object",
-      "additionalProperties": false,
-      "properties": {
-        "auto-update": {
-          "type": "boolean",
-          "default": "true"
-        }
-      }
-    },
-    "discovery": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "identity",
-        "host"
-      ],
-      "properties": {
-        "identity": {
-          "type": "string"
         },
+        "telegram": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "enabled"
+          ],
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "api-path": {
+              "type": "string",
+              "default": "/bot/public"
+            }
+          }
+        }
+      }
+    },
+    "api": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
         "host": {
           "type": "string",
           "default": "api.racoondev.top"
@@ -74,8 +74,24 @@
             "https"
           ],
           "default": "https"
-        },
-        "path": {
+        }
+      }
+    },
+    "application": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "auto-update": {
+          "type": "boolean",
+          "default": "true"
+        }
+      }
+    },
+    "discovery": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "api-path": {
           "type": "string",
           "default": "/media"
         },
@@ -92,7 +108,9 @@
     "representation": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["directory"],
+      "required": [
+        "directory"
+      ],
       "properties": {
         "enabled": {
           "type": "boolean",

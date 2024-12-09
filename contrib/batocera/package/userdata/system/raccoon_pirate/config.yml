@@ -2,21 +2,27 @@
 frontend:
   http:
     enabled: true
-    host: "0.0.0.0"
-    port: 8080
+    host: "127.0.0.1"
+    port: 8081
+  telegram:
+    enabled: true
+    api-path: "/bot/public"
 
 # Core application settings
 application:
   # Automatically check and perform updates
   auto-update: true
 
-# Torrents discovery remote service credentials
-discovery:
-  identity: "ed950aaa-8b9b-46f5-94fe-e9c074e2adfa"
+# API remote server
+api:
   scheme: "https"
   host: "api.racoondev.top"
   port: 443
-  path: "/media"
+
+# Torrents discovery settings
+discovery:
+  # Relative path to discovery service on remote API server
+  api-path: "/media"
   # Affects to language of searchable content (ru or en)
   language: ru
 

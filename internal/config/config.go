@@ -3,6 +3,7 @@ package config
 type Config struct {
 	Frontend       Frontend
 	Application    Application
+	Api            Api
 	Discovery      Discovery
 	Storage        Storage
 	Representation Representation
@@ -10,7 +11,8 @@ type Config struct {
 }
 
 type Frontend struct {
-	Http Http
+	Http     Http
+	Telegram Telegram
 }
 
 type Application struct {
@@ -23,12 +25,19 @@ type Http struct {
 	Port    uint16
 }
 
+type Telegram struct {
+	Enabled bool
+	ApiPath string `json:"api-path"`
+}
+
+type Api struct {
+	Scheme string
+	Host   string
+	Port   uint16
+}
+
 type Discovery struct {
-	Identity string
-	Scheme   string
-	Host     string
-	Port     uint16
-	Path     string
+	ApiPath  string `json:"api-path"`
 	Language string
 }
 
