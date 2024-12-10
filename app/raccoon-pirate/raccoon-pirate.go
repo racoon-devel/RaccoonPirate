@@ -15,6 +15,7 @@ import (
 	"github.com/racoon-devel/raccoon-pirate/internal/remote"
 	"github.com/racoon-devel/raccoon-pirate/internal/representation"
 	"github.com/racoon-devel/raccoon-pirate/internal/selector"
+	"github.com/racoon-devel/raccoon-pirate/internal/telegram"
 	"github.com/racoon-devel/raccoon-pirate/internal/torrents"
 	"github.com/racoon-devel/raccoon-pirate/internal/updater"
 	"github.com/racoon-devel/raccoon-pirate/internal/web"
@@ -85,7 +86,7 @@ func main() {
 	discoveryService := discovery.NewService(apiConn, conf.Discovery)
 
 	if conf.Frontend.Http.Enabled {
-		server := web.Server{
+		webServer := web.Server{
 			DiscoveryService: discoveryService,
 			TorrentService:   torrentService,
 			SelectCriterion:  conf.Selector.GetCriterion(),
@@ -98,11 +99,17 @@ func main() {
 			}),
 		}
 
-		if err = server.Run(conf.Frontend.Http.Host, conf.Frontend.Http.Port); err != nil {
+		if err = webServer.Run(conf.Frontend.Http.Host, conf.Frontend.Http.Port); err != nil {
 			log.Errorf("Run web server failed: %s", err)
 		} else {
-			defer server.Shutdown()
+			defer webServer.Shutdown()
 		}
+	}
+
+	if conf.Frontend.Telegram.Enabled {
+		apiSession := apiConn.NewBotSession(conf.Frontend.Telegram.ApiPath)
+		botService := telegram.New(apiSession)
+		defer botService.Shutdown()
 	}
 
 	signalCh := make(chan os.Signal, 1)

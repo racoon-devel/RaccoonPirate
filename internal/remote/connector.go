@@ -2,7 +2,9 @@ package remote
 
 import (
 	"fmt"
+	"path"
 
+	"github.com/RacoonMediaServer/rms-bot-client/pkg/session"
 	"github.com/RacoonMediaServer/rms-media-discovery/pkg/client/client"
 	"github.com/apex/log"
 	"github.com/go-openapi/runtime"
@@ -43,4 +45,18 @@ func (c *Connector) NewDiscoveryClient(apiPath string) (auth runtime.ClientAuthI
 	auth = httptransport.APIKeyAuth("X-Token", "header", c.token)
 	cli = client.New(tr, strfmt.Default)
 	return
+}
+
+func (c *Connector) NewBotSession(apiPath string) *session.Session {
+	endpoint := session.Endpoint{
+		Scheme: "wss",
+		Host:   c.Config.Host,
+		Port:   int(c.Config.Port),
+		Path:   path.Join(apiPath, c.Config.Domain),
+	}
+	if c.Config.Scheme == "http" {
+		endpoint.Scheme = "ws"
+	}
+
+	return session.New(endpoint, c.token)
 }
