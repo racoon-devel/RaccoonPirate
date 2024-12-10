@@ -12,6 +12,7 @@ import (
 	"github.com/racoon-devel/raccoon-pirate/internal/config"
 	"github.com/racoon-devel/raccoon-pirate/internal/db"
 	"github.com/racoon-devel/raccoon-pirate/internal/discovery"
+	"github.com/racoon-devel/raccoon-pirate/internal/remote"
 	"github.com/racoon-devel/raccoon-pirate/internal/representation"
 	"github.com/racoon-devel/raccoon-pirate/internal/selector"
 	"github.com/racoon-devel/raccoon-pirate/internal/torrents"
@@ -67,6 +68,11 @@ func main() {
 
 	printRegisteredTorrents(dbase)
 
+	apiConn := &remote.Connector{Config: conf.Api}
+	if err = apiConn.ObtainToken(); err != nil {
+		log.Errorf("!!! Discovery and Telegram services will not work, because obtain API token failed: %s !!!", err)
+	}
+
 	reprService := representation.New(conf.Representation)
 	defer reprService.Clean()
 
@@ -76,7 +82,7 @@ func main() {
 	}
 	defer torrentService.Stop()
 
-	discoveryService := discovery.NewService(conf.Discovery)
+	discoveryService := discovery.NewService(apiConn, conf.Discovery)
 
 	if conf.Frontend.Http.Enabled {
 		server := web.Server{

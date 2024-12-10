@@ -48,7 +48,7 @@
             },
             "api-path": {
               "type": "string",
-              "default": "/bot/public"
+              "default": "/bot"
             }
           }
         }
@@ -74,6 +74,10 @@
             "https"
           ],
           "default": "https"
+        },
+        "domain": {
+          "type": "string",
+          "default": "public"
         }
       }
     },

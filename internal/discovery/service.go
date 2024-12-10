@@ -3,8 +3,6 @@ package discovery
 import (
 	"github.com/RacoonMediaServer/rms-media-discovery/pkg/client/client"
 	"github.com/go-openapi/runtime"
-	httptransport "github.com/go-openapi/runtime/client"
-	"github.com/go-openapi/strfmt"
 	"github.com/racoon-devel/raccoon-pirate/internal/config"
 )
 
@@ -15,13 +13,12 @@ type Service struct {
 	cli  *client.Client
 }
 
-func NewService(conf config.Discovery) *Service {
-	tr := httptransport.New(conf.Host, conf.Path, []string{conf.Scheme})
-	auth := httptransport.APIKeyAuth("X-Token", "header", conf.Identity)
-	cli := client.New(tr, strfmt.Default)
+type ClientFactory interface {
+	NewDiscoveryClient(apiPath string) (auth runtime.ClientAuthInfoWriter, cli *client.Client)
+}
 
-	return &Service{
-		auth: auth,
-		cli:  cli,
-	}
+func NewService(clientFactory ClientFactory, conf config.Discovery) *Service {
+	s := Service{}
+	s.auth, s.cli = clientFactory.NewDiscoveryClient(conf.ApiPath)
+	return &s
 }

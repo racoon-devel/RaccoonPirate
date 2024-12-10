@@ -34,6 +34,7 @@ type Api struct {
 	Scheme string
 	Host   string
 	Port   uint16
+	Domain string
 }
 
 type Discovery struct {
