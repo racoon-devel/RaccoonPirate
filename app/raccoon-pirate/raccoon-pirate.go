@@ -12,6 +12,7 @@ import (
 	"github.com/racoon-devel/raccoon-pirate/internal/config"
 	"github.com/racoon-devel/raccoon-pirate/internal/db"
 	"github.com/racoon-devel/raccoon-pirate/internal/discovery"
+	"github.com/racoon-devel/raccoon-pirate/internal/frontend"
 	"github.com/racoon-devel/raccoon-pirate/internal/remote"
 	"github.com/racoon-devel/raccoon-pirate/internal/representation"
 	"github.com/racoon-devel/raccoon-pirate/internal/selector"
@@ -85,20 +86,21 @@ func main() {
 
 	discoveryService := discovery.NewService(apiConn, conf.Discovery)
 
-	if conf.Frontend.Http.Enabled {
-		webServer := web.Server{
-			DiscoveryService: discoveryService,
-			TorrentService:   torrentService,
-			SelectCriterion:  conf.Selector.GetCriterion(),
-			Selector: selector.New(selector.Settings{
-				MinSeasonSizeMB:     int64(conf.Selector.MinSeasonSize),
-				MaxSeasonSizeMB:     int64(conf.Selector.MaxSeasonSize),
-				MinSeedersThreshold: int64(conf.Selector.MinSeedersThreshold),
-				QualityPrior:        conf.Selector.Quality,
-				VoiceList:           selector.Voices(conf.Selector.Voices),
-			}),
-		}
+	frontendSetup := frontend.Setup{
+		DiscoveryService: discoveryService,
+		TorrentService:   torrentService,
+		SelectCriterion:  conf.Selector.GetCriterion(),
+		Selector: selector.New(selector.Settings{
+			MinSeasonSizeMB:     int64(conf.Selector.MinSeasonSize),
+			MaxSeasonSizeMB:     int64(conf.Selector.MaxSeasonSize),
+			MinSeedersThreshold: int64(conf.Selector.MinSeedersThreshold),
+			QualityPrior:        conf.Selector.Quality,
+			VoiceList:           selector.Voices(conf.Selector.Voices),
+		}),
+	}
 
+	if conf.Frontend.Http.Enabled {
+		webServer := web.Server{Setup: frontendSetup}
 		if err = webServer.Run(conf.Frontend.Http.Host, conf.Frontend.Http.Port); err != nil {
 			log.Errorf("Run web server failed: %s", err)
 		} else {
@@ -107,9 +109,12 @@ func main() {
 	}
 
 	if conf.Frontend.Telegram.Enabled {
-		apiSession := apiConn.NewBotSession(conf.Frontend.Telegram.ApiPath)
-		botService := telegram.New(apiSession)
-		defer botService.Shutdown()
+		bot := telegram.Bot{
+			Setup:     frontendSetup,
+			Transport: apiConn.NewBotSession(conf.Frontend.Telegram.ApiPath),
+		}
+		bot.Run()
+		defer bot.Shutdown()
 	}
 
 	signalCh := make(chan os.Signal, 1)

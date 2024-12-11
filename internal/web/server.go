@@ -11,22 +11,19 @@ import (
 	"github.com/apex/log"
 	"github.com/gin-gonic/gin"
 	"github.com/racoon-devel/raccoon-pirate/internal/cache"
-	"github.com/racoon-devel/raccoon-pirate/internal/selector"
+	"github.com/racoon-devel/raccoon-pirate/internal/frontend"
 )
 
 const gracefulShutdownTimeout = 10 * time.Second
 const cacheItemTTL = 1 * time.Hour
 
 type Server struct {
+	frontend.Setup
+
 	l     *log.Entry
 	g     *gin.Engine
 	srv   http.Server
 	cache *cache.Cache
-
-	DiscoveryService DiscoveryService
-	TorrentService   TorrentService
-	Selector         selector.MediaSelector
-	SelectCriterion  selector.Criteria
 }
 
 func (s *Server) Run(host string, port uint16) error {
