@@ -1,0 +1,8 @@
+{{ define "movie" }}
+<b>{{ $.Title }}</b>
+
+<b>Год</b>: {{ $.Year }}
+<b>Рейтинг</b>: {{ $.Rating }}
+<b>Жанры:</b> {{ $.Genres }}
+<b>Описание</b>: <i>{{ $.Description }}</i>
+{{ end }}

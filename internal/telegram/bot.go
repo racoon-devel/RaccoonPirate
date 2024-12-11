@@ -12,6 +12,7 @@ import (
 	rms_bot_client "github.com/RacoonMediaServer/rms-packages/pkg/service/rms-bot-client"
 	"github.com/apex/log"
 	"github.com/racoon-devel/raccoon-pirate/internal/frontend"
+	"github.com/racoon-devel/raccoon-pirate/internal/telegram/commands/search"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -28,7 +29,7 @@ type Bot struct {
 }
 
 func (b *Bot) Run() {
-	pirateCommands := commands.MakeRegisteredCommands(unlink.Command)
+	pirateCommands := commands.MakeRegisteredCommands(search.Command, unlink.Command)
 
 	settings := bot.Settings{
 		Transport:  b.Transport,
