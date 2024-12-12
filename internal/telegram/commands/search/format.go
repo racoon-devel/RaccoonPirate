@@ -62,7 +62,7 @@ func (s *searchCommand) formatMovieMessage(mov *model.Movie) *communication.BotM
 		}
 	}
 
-	m.Buttons = append(m.Buttons, &communication.Button{Title: "Добавить", Command: "/add " + mov.ID})
+	m.Buttons = append(m.Buttons, &communication.Button{Title: "Добавить", Command: "/add auto " + mov.ID})
 	m.Buttons = append(m.Buttons, &communication.Button{Title: "Выбрать раздачу", Command: "/add select " + mov.ID})
 	m.Buttons = append(m.Buttons, &communication.Button{Title: "Файл", Command: "/add file " + mov.ID})
 
@@ -85,6 +85,45 @@ func (s *searchCommand) formatMovieMessage(mov *model.Movie) *communication.BotM
 	if err := parsedTemplates.ExecuteTemplate(&buf, "movie", &ui); err != nil {
 		s.l.Logf(logger.ErrorLevel, "execute template failed: %s", err)
 	}
+	m.Text = buf.String()
+	return m
+}
+
+func (s searchCommand) formatMusicMessage(mus model.Music) *communication.BotMessage {
+	m := &communication.BotMessage{}
+	photo := ""
+	if mus.IsArtist() {
+		photo = mus.AsArtist().PictureUrl
+	} else if mus.IsAlbum() {
+		photo = mus.AsAlbum().CoverUrl
+	}
+
+	if photo != "" {
+		m.Attachment = &communication.Attachment{
+			Type:     communication.Attachment_PhotoURL,
+			MimeType: "",
+			Content:  []byte(photo),
+		}
+	}
+
+	m.Buttons = append(m.Buttons, &communication.Button{Title: "Добавить", Command: "/add auto " + mus.Title()})
+	m.Buttons = append(m.Buttons, &communication.Button{Title: "Выбрать раздачу", Command: "/add select " + mus.Title()})
+	m.Buttons = append(m.Buttons, &communication.Button{Title: "Файл", Command: "/add file " + mus.Title()})
+
+	m.KeyboardStyle = communication.KeyboardStyle_Message
+
+	var buf bytes.Buffer
+	var err error
+	if mus.IsArtist() {
+		err = parsedTemplates.ExecuteTemplate(&buf, "artist", mus.AsArtist())
+	} else {
+		err = parsedTemplates.ExecuteTemplate(&buf, "album", mus.AsAlbum())
+	}
+
+	if err != nil {
+		s.l.Logf(logger.ErrorLevel, "execute template failed: %s", err)
+	}
+
 	m.Text = buf.String()
 	return m
 }

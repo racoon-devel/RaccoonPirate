@@ -81,7 +81,22 @@ func (s *searchCommand) searchMovies(ctx command.Context) []*communication.BotMe
 	return result
 }
 func (s *searchCommand) searchMusic(ctx command.Context) []*communication.BotMessage {
-	return nil
+	music, err := s.s.DiscoveryService.SearchMusic(ctx, s.query)
+	if err != nil {
+		s.l.Logf(logger.ErrorLevel, "Search music failed: %s", err)
+		return command.ReplyText(command.SomethingWentWrong)
+	}
+
+	if len(music) == 0 {
+		return command.ReplyText(command.NothingFound)
+	}
+
+	result := make([]*communication.BotMessage, len(music))
+	for i, mu := range music {
+		result[len(result)-i-1] = s.formatMusicMessage(mu)
+	}
+
+	return result
 }
 func (s *searchCommand) searchOther(ctx command.Context) []*communication.BotMessage {
 	return nil

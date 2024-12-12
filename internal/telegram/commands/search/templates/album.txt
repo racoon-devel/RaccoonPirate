@@ -1,0 +1,7 @@
+{{ define "album" }}
+<b>Альбом "{{ $.Title }}" ({{ $.Artist}})</b>
+
+<b>Исполнитель</b>: {{ $.Artist }}
+<b>Количество треков</b>: {{ $.Tracks }}{{ if ne $.ReleaseYear 0 }}
+<b>Дата выхода</b>: {{ $.ReleaseDate }}{{ end }}
+{{ end }}
