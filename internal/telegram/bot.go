@@ -16,7 +16,7 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-const botNickName = "RaccoonPirateBot"
+const botURL = "https://t.me/RaccoonPirateBot"
 
 type Bot struct {
 	frontend.Setup
@@ -53,10 +53,10 @@ func (b *Bot) obtainIdentificationCode() {
 		return
 	}
 
-	s := strings.Repeat("*", 30) + "\n"
-	s += fmt.Sprintf("* %-27s*\n", "Bot: @"+botNickName)
-	s += fmt.Sprintf("* %-27s*\n", "Code: "+resp.Code)
-	s += strings.Repeat("*", 30) + "\n"
+	s := strings.Repeat("*", 50) + "\n"
+	s += fmt.Sprintf("* %-47s*\n", "Bot: "+botURL)
+	s += fmt.Sprintf("* %-47s*\n", "Code: "+resp.Code)
+	s += strings.Repeat("*", 50) + "\n"
 	log.Infof("Telegram connection info: \n%s", s)
 }
 

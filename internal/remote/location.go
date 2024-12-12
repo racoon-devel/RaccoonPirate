@@ -9,14 +9,14 @@ const tokenFileName = ".raccoon-pirate-token"
 
 func getPossibleTokenLocations() []string {
 	locations := []string{}
-	curDir, err := filepath.Abs(filepath.Dir(os.Args[0]))
-	if err == nil {
-		locations = append(locations, filepath.Join(curDir, tokenFileName))
-	}
-
 	homeDir, err := os.UserHomeDir()
 	if err == nil {
 		locations = append(locations, filepath.Join(homeDir, tokenFileName))
+	}
+
+	curDir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	if err == nil {
+		locations = append(locations, filepath.Join(curDir, tokenFileName))
 	}
 
 	cfgDir, err := os.UserConfigDir()

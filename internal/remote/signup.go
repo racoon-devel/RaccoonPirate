@@ -21,7 +21,7 @@ func (c *Connector) signUp() error {
 	u.Scheme = c.Config.Scheme
 	u.Host = fmt.Sprintf("%s:%d", c.Config.Host, c.Config.Port)
 	u.RawQuery = query.Encode()
-	u.RawPath = "/signup"
+	u.Path = "/signup"
 
 	resp, err := http.Get(u.String())
 	if err != nil {
