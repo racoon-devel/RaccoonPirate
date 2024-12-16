@@ -4,6 +4,7 @@ import (
 	"github.com/RacoonMediaServer/rms-bot-client/pkg/command"
 	"github.com/RacoonMediaServer/rms-media-discovery/pkg/media"
 	"github.com/RacoonMediaServer/rms-packages/pkg/communication"
+	"github.com/racoon-devel/raccoon-pirate/internal/cache"
 	"github.com/racoon-devel/raccoon-pirate/internal/frontend"
 	"go-micro.dev/v4/logger"
 )
@@ -23,6 +24,7 @@ var contentTypeHelper = map[string]media.ContentType{
 
 type searchCommand struct {
 	s     *frontend.Setup
+	c     *cache.Cache
 	l     logger.Logger
 	query string
 }
@@ -75,6 +77,7 @@ func (s *searchCommand) searchMovies(ctx command.Context) []*communication.BotMe
 	// выводим в обратном порядке,чтобы не мотать ленту в тг
 	result := make([]*communication.BotMessage, len(movies))
 	for i, mov := range movies {
+		s.c.Store(mov.ID, mov)
 		result[len(result)-i-1] = s.formatMovieMessage(mov)
 	}
 
@@ -93,19 +96,26 @@ func (s *searchCommand) searchMusic(ctx command.Context) []*communication.BotMes
 
 	result := make([]*communication.BotMessage, len(music))
 	for i, mu := range music {
+		s.c.Store(mu.Title(), mu)
 		result[len(result)-i-1] = s.formatMusicMessage(mu)
 	}
 
 	return result
 }
+
 func (s *searchCommand) searchOther(ctx command.Context) []*communication.BotMessage {
+	// id := uuid.NewV4().String()
+	// s.c.Store(id, s.query)
+	// s.
 	return nil
 }
 
 func New(interlayer command.Interlayer, l logger.Logger) command.Command {
 	s, _ := command.InterlayerLoad[*frontend.Setup](&interlayer)
+	c, _ := command.InterlayerLoad[*cache.Cache](&interlayer)
 	return &searchCommand{
 		s: s,
+		c: c,
 		l: l.Fields(map[string]interface{}{"command": "search"}),
 	}
 }
