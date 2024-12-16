@@ -23,7 +23,7 @@ There are a few frontends enabled:
 
 * cli (coming soon);
 * Web UI;
-* Telegram Bot integration (coming soon).
+* Telegram Bot integration.
 
 ## Supported Platforms
 
