@@ -10,7 +10,7 @@ import (
 var Command command.Type = command.Type{
 	ID:      "library",
 	Title:   "Библиотека",
-	Help:    "Можно посмотреть, что было скачано и добавлено",
+	Help:    "Можно посмотреть, какой контент был добавлен",
 	Factory: New,
 }
 
