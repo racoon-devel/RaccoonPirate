@@ -6,6 +6,8 @@ import (
 	"github.com/RacoonMediaServer/rms-packages/pkg/communication"
 	"github.com/racoon-devel/raccoon-pirate/internal/cache"
 	"github.com/racoon-devel/raccoon-pirate/internal/frontend"
+	"github.com/racoon-devel/raccoon-pirate/internal/telegram/commands/add"
+	uuid "github.com/satori/go.uuid"
 	"go-micro.dev/v4/logger"
 )
 
@@ -23,13 +25,19 @@ var contentTypeHelper = map[string]media.ContentType{
 }
 
 type searchCommand struct {
-	s     *frontend.Setup
-	c     *cache.Cache
-	l     logger.Logger
-	query string
+	s      *frontend.Setup
+	c      *cache.Cache
+	i      command.Interlayer
+	l      logger.Logger
+	addCmd command.Command
+	query  string
 }
 
 func (s *searchCommand) Do(ctx command.Context) (bool, []*communication.BotMessage) {
+	if s.addCmd != nil {
+		return s.addCmd.Do(ctx)
+	}
+
 	if len(ctx.Arguments) < 1 {
 		return false, command.ReplyText("Что ищем?")
 	}
@@ -59,7 +67,7 @@ func (s *searchCommand) Do(ctx command.Context) (bool, []*communication.BotMessa
 	case media.Other:
 		fallthrough
 	default:
-		return true, s.searchOther(ctx)
+		return s.searchOther(ctx)
 	}
 }
 
@@ -103,19 +111,24 @@ func (s *searchCommand) searchMusic(ctx command.Context) []*communication.BotMes
 	return result
 }
 
-func (s *searchCommand) searchOther(ctx command.Context) []*communication.BotMessage {
-	// id := uuid.NewV4().String()
-	// s.c.Store(id, s.query)
-	// s.
-	return nil
+func (s *searchCommand) searchOther(ctx command.Context) (bool, []*communication.BotMessage) {
+	id := uuid.NewV4().String()
+	s.c.Store(id, s.query)
+
+	s.addCmd = add.New(s.i, s.l)
+	ctx.Arguments = command.Arguments{"select", id}
+
+	return s.addCmd.Do(ctx)
 }
 
 func New(interlayer command.Interlayer, l logger.Logger) command.Command {
 	s, _ := command.InterlayerLoad[*frontend.Setup](&interlayer)
 	c, _ := command.InterlayerLoad[*cache.Cache](&interlayer)
+
 	return &searchCommand{
 		s: s,
 		c: c,
+		i: interlayer,
 		l: l.Fields(map[string]interface{}{"command": "search"}),
 	}
 }

@@ -51,6 +51,7 @@ type addCommand struct {
 	torrentRecord internalModel.Torrent
 	mov           *model.Movie
 	mus           model.Music
+	query         string
 }
 
 func (d *addCommand) Do(ctx command.Context) (done bool, messages []*communication.BotMessage) {
@@ -95,9 +96,11 @@ func (d *addCommand) doInitial(ctx command.Context) (bool, []*communication.BotM
 		}
 	case model.Music:
 		d.mus = item
+		d.query = item.Title()
 		d.torrentRecord.ExpandByMusic(item)
 	case string:
 		d.torrentRecord.Type = media.Other
+		d.query = item
 	default:
 		d.l.Logf(logger.ErrorLevel, "Unknown type of media: %T", item)
 		return true, command.ReplyText(command.SomethingWentWrong)
@@ -128,7 +131,7 @@ func (d *addCommand) addAuto(ctx command.Context) (bool, []*communication.BotMes
 	}
 
 	if d.torrentRecord.Type != media.Movies {
-		opts.Query = d.id
+		opts.Query = d.query
 	}
 
 	picked := d.s.Selector.Select(torrents, opts)
@@ -214,7 +217,7 @@ func (d *addCommand) searchTorrents(ctx context.Context) (result []*models.Searc
 	case media.Music:
 		result, err = d.s.DiscoveryService.SearchMusicTorrents(ctx, d.mus)
 	case media.Other:
-		result, err = d.s.DiscoveryService.SearchOtherTorrents(ctx, d.id)
+		result, err = d.s.DiscoveryService.SearchOtherTorrents(ctx, d.query)
 	default:
 		err = errors.New("unknown content type")
 	}
