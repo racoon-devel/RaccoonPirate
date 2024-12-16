@@ -15,6 +15,7 @@ import (
 	"github.com/racoon-devel/raccoon-pirate/internal/cache"
 	"github.com/racoon-devel/raccoon-pirate/internal/frontend"
 	"github.com/racoon-devel/raccoon-pirate/internal/telegram/commands/add"
+	"github.com/racoon-devel/raccoon-pirate/internal/telegram/commands/file"
 	"github.com/racoon-devel/raccoon-pirate/internal/telegram/commands/search"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -35,7 +36,7 @@ type Bot struct {
 }
 
 func (b *Bot) Run() {
-	pirateCommands := commands.MakeRegisteredCommands(search.Command, add.Command, unlink.Command)
+	pirateCommands := commands.MakeRegisteredCommands(search.Command, add.Command, file.Command, unlink.Command)
 
 	settings := bot.Settings{
 		Transport:  b.Transport,
