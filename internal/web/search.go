@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/RacoonMediaServer/rms-media-discovery/pkg/media"
 	"github.com/RacoonMediaServer/rms-media-discovery/pkg/model"
 	"github.com/apex/log"
 	"github.com/gin-gonic/gin"
+	"github.com/racoon-devel/raccoon-pirate/internal/frontend"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -70,10 +72,14 @@ func extractArtistsAlbums(music []model.Music) (artists []*model.Artist, albums 
 
 func (s *Server) searchHandler(ctx *gin.Context) {
 	q := ctx.Query("q")
+
 	mediaType := ctx.Query("media-type")
-	if mediaType == "" {
-		mediaType = "movies"
+	contentType, ok := frontend.DetermineContentType(mediaType)
+	if !ok {
+		contentType = media.Movies
+		mediaType = frontend.GetContentTypeID(media.Movies)
 	}
+
 	page := searchPage{
 		Query:     q,
 		MediaType: mediaType,
@@ -87,19 +93,19 @@ func (s *Server) searchHandler(ctx *gin.Context) {
 	l := s.l.WithField("query", q).WithField("media-type", mediaType)
 	l.Debugf("Search")
 
-	switch mediaType {
-	case "movies":
+	switch contentType {
+	case media.Movies:
 		page.Movies = s.searchMovies(l, ctx, q)
 		if page.Movies == nil {
 			return
 		}
-	case "music":
+	case media.Music:
 		music := s.searchMusic(l, ctx, q)
 		if music == nil {
 			return
 		}
 		page.Artists, page.Albums = extractArtistsAlbums(music)
-	case "others":
+	case media.Other:
 		id := uuid.NewV4().String()
 		s.cache.Store(id, q)
 		ctx.Redirect(http.StatusFound, fmt.Sprintf("/add/%s?select=true", id))

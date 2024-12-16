@@ -3,7 +3,6 @@ package web
 import (
 	"net/http"
 
-	"github.com/RacoonMediaServer/rms-media-discovery/pkg/media"
 	"github.com/gin-gonic/gin"
 )
 
@@ -41,17 +40,4 @@ func iotaSeasons(count uint) []uint {
 		result[i-1] = i
 	}
 	return result
-}
-
-func decodeMediaType(t string) media.ContentType {
-	switch t {
-	case "movies":
-		return media.Movies
-	case "music":
-		return media.Music
-	case "others":
-		return media.Other
-	default:
-		return media.Movies
-	}
 }

@@ -89,7 +89,7 @@ func (s *searchCommand) formatMovieMessage(mov *model.Movie) *communication.BotM
 	return m
 }
 
-func (s searchCommand) formatMusicMessage(mus model.Music) *communication.BotMessage {
+func (s searchCommand) formatMusicMessage(uid string, mus model.Music) *communication.BotMessage {
 	m := &communication.BotMessage{}
 	photo := ""
 	if mus.IsArtist() {
@@ -106,9 +106,9 @@ func (s searchCommand) formatMusicMessage(mus model.Music) *communication.BotMes
 		}
 	}
 
-	m.Buttons = append(m.Buttons, &communication.Button{Title: "Добавить", Command: "/add auto " + mus.Title()})
-	m.Buttons = append(m.Buttons, &communication.Button{Title: "Выбрать раздачу", Command: "/add select " + mus.Title()})
-	m.Buttons = append(m.Buttons, &communication.Button{Title: "Файл", Command: "/add file " + mus.Title()})
+	m.Buttons = append(m.Buttons, &communication.Button{Title: "Добавить", Command: "/add auto " + uid})
+	m.Buttons = append(m.Buttons, &communication.Button{Title: "Выбрать раздачу", Command: "/add select " + uid})
+	m.Buttons = append(m.Buttons, &communication.Button{Title: "Файл", Command: "/add file " + uid})
 
 	m.KeyboardStyle = communication.KeyboardStyle_Message
 

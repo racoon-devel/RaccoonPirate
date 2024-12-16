@@ -3,7 +3,9 @@ package web
 import (
 	"net/http"
 
+	"github.com/RacoonMediaServer/rms-media-discovery/pkg/media"
 	"github.com/gin-gonic/gin"
+	"github.com/racoon-devel/raccoon-pirate/internal/frontend"
 	"github.com/racoon-devel/raccoon-pirate/internal/model"
 )
 
@@ -18,7 +20,12 @@ func (s *Server) getTorrentsHandler(ctx *gin.Context) {
 	page := torrentsPage{}
 
 	if mediaType != "" {
-		list, err := s.TorrentService.GetTorrentsList(decodeMediaType(mediaType))
+		contentType, ok := frontend.DetermineContentType(mediaType)
+		if !ok {
+			contentType = media.Movies
+		}
+
+		list, err := s.TorrentService.GetTorrentsList(contentType)
 		if err != nil {
 			s.l.Errorf("Load existing torrents list failed: %s", err)
 			displayError(ctx, http.StatusInternalServerError, "Load torrents list failed")

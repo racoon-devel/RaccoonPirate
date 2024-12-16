@@ -2,6 +2,6 @@
 <b>Альбом "{{ $.Title }}" ({{ $.Artist}})</b>
 
 <b>Исполнитель</b>: {{ $.Artist }}
-<b>Количество треков</b>: {{ $.Tracks }}{{ if ne $.ReleaseYear 0 }}
+<b>Количество треков</b>: {{ $.Tracks }}{{ if ne $.ReleaseDate "" }}
 <b>Дата выхода</b>: {{ $.ReleaseDate }}{{ end }}
 {{ end }}

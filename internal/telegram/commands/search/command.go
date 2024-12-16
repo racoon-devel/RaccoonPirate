@@ -18,12 +18,6 @@ var Command command.Type = command.Type{
 	Factory: New,
 }
 
-var contentTypeHelper = map[string]media.ContentType{
-	"Фильмы": media.Movies,
-	"Музыка": media.Music,
-	"Другое": media.Other,
-}
-
 type searchCommand struct {
 	s      *frontend.Setup
 	c      *cache.Cache
@@ -47,14 +41,12 @@ func (s *searchCommand) Do(ctx command.Context) (bool, []*communication.BotMessa
 		msg := communication.BotMessage{
 			Text:          "Тип контента?",
 			KeyboardStyle: communication.KeyboardStyle_Chat,
-		}
-		for k := range contentTypeHelper {
-			msg.Buttons = append(msg.Buttons, &communication.Button{Title: k, Command: k})
+			Buttons:       frontend.GetContentTypesButtonsRu(),
 		}
 		return false, []*communication.BotMessage{&msg}
 	}
 
-	contentType, ok := contentTypeHelper[ctx.Arguments.String()]
+	contentType, ok := frontend.DetermineContentType(ctx.Arguments.String())
 	if !ok {
 		return false, command.ReplyText("Не удалось распознать тип контента")
 	}
@@ -104,8 +96,9 @@ func (s *searchCommand) searchMusic(ctx command.Context) []*communication.BotMes
 
 	result := make([]*communication.BotMessage, len(music))
 	for i, mu := range music {
-		s.c.Store(mu.Title(), mu)
-		result[len(result)-i-1] = s.formatMusicMessage(mu)
+		uid := uuid.NewV4().String()
+		s.c.Store(uid, mu)
+		result[len(result)-i-1] = s.formatMusicMessage(uid, mu)
 	}
 
 	return result

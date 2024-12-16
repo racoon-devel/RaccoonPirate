@@ -10,6 +10,7 @@ import (
 	"github.com/apex/log"
 	"github.com/gin-gonic/gin"
 
+	"github.com/racoon-devel/raccoon-pirate/internal/frontend"
 	internalModel "github.com/racoon-devel/raccoon-pirate/internal/model"
 	"github.com/racoon-devel/raccoon-pirate/internal/selector"
 )
@@ -72,19 +73,19 @@ func (s *Server) addHandler(ctx *gin.Context) {
 			return
 		}
 		torrentRecord.ExpandByMovie(item)
-		mediaType = "movies"
+		mediaType = frontend.GetContentTypeID(media.Movies)
 	case model.Music:
 		if !s.selectMusicTorrent(ctx, l, &q, item) {
 			return
 		}
 		torrentRecord.ExpandByMusic(item)
-		mediaType = "music"
+		mediaType = frontend.GetContentTypeID(media.Music)
 	case string:
 		if !s.selectOtherTorrent(ctx, l, &q, item) {
 			return
 		}
 		torrentRecord.Type = media.Other
-		mediaType = "other"
+		mediaType = frontend.GetContentTypeID(media.Other)
 	default:
 		l.Errorf("Unknown type of media: %T", item)
 		displayError(ctx, http.StatusInternalServerError, "Type of media is unsupported")
@@ -109,7 +110,7 @@ func (s *Server) addHandler(ctx *gin.Context) {
 }
 
 func (s *Server) selectMovieTorrent(ctx *gin.Context, l *log.Entry, q *addQuery, mov *model.Movie) bool {
-	l = l.WithField("media-type", "movie").WithField("title", mov.Title)
+	l = l.WithField("media-type", frontend.GetContentTypeID(media.Movies)).WithField("title", mov.Title)
 
 	// Select season in tv-series case
 	if mov.Type == model.MovieType_TvSeries && mov.Seasons != 0 && q.season == "" && q.torrent == "" {
@@ -171,7 +172,7 @@ func (s *Server) selectMovieTorrent(ctx *gin.Context, l *log.Entry, q *addQuery,
 }
 
 func (s *Server) selectMusicTorrent(ctx *gin.Context, l *log.Entry, q *addQuery, m model.Music) bool {
-	l = l.WithField("media-type", "music").WithField("title", m.Title())
+	l = l.WithField("media-type", frontend.GetContentTypeID(media.Music)).WithField("title", m.Title())
 
 	// If torrent has been selected - just return
 	if q.torrent != "" {
@@ -219,7 +220,7 @@ func (s *Server) selectMusicTorrent(ctx *gin.Context, l *log.Entry, q *addQuery,
 }
 
 func (s *Server) selectOtherTorrent(ctx *gin.Context, l *log.Entry, q *addQuery, tq string) bool {
-	l = l.WithField("media-type", "other").WithField("title", tq)
+	l = l.WithField("media-type", frontend.GetContentTypeID(media.Other)).WithField("title", tq)
 
 	// If torrent has been selected - just return
 	if q.torrent != "" {

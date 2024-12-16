@@ -4,7 +4,9 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/RacoonMediaServer/rms-media-discovery/pkg/media"
 	"github.com/gin-gonic/gin"
+	"github.com/racoon-devel/raccoon-pirate/internal/frontend"
 	"github.com/racoon-devel/raccoon-pirate/internal/model"
 )
 
@@ -19,7 +21,12 @@ func (s *Server) getUploadHandler(ctx *gin.Context) {
 
 func (s *Server) postUploadHandler(ctx *gin.Context) {
 	mediaType := ctx.PostForm("media-type")
-	torrentRecord := model.Torrent{Type: decodeMediaType(mediaType)}
+	contentType, ok := frontend.DetermineContentType(mediaType)
+	if !ok {
+		contentType = media.Movies
+	}
+
+	torrentRecord := model.Torrent{Type: contentType}
 	file, err := ctx.FormFile("file")
 	if err != nil {
 		s.l.Errorf("Upload torrent file failed: %s", err)

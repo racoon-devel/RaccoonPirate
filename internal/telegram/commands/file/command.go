@@ -2,7 +2,6 @@ package file
 
 import (
 	"github.com/RacoonMediaServer/rms-bot-client/pkg/command"
-	"github.com/RacoonMediaServer/rms-media-discovery/pkg/media"
 	"github.com/RacoonMediaServer/rms-packages/pkg/communication"
 	"github.com/racoon-devel/raccoon-pirate/internal/frontend"
 	"github.com/racoon-devel/raccoon-pirate/internal/model"
@@ -17,12 +16,6 @@ var Command command.Type = command.Type{
 	Internal: true,
 }
 
-var contentTypeHelper = map[string]media.ContentType{
-	"Фильмы": media.Movies,
-	"Музыка": media.Music,
-	"Другое": media.Other,
-}
-
 type fileCommand struct {
 	s          *frontend.Setup
 	l          logger.Logger
@@ -32,7 +25,7 @@ type fileCommand struct {
 
 func (c *fileCommand) Do(ctx command.Context) (bool, []*communication.BotMessage) {
 	if c.chooseType {
-		contentType, ok := contentTypeHelper[ctx.Arguments.String()]
+		contentType, ok := frontend.DetermineContentType(ctx.Arguments.String())
 		if !ok {
 			return false, command.ReplyText("Неизвестный тип медиа")
 		}
@@ -59,10 +52,7 @@ func (c *fileCommand) Do(ctx command.Context) (bool, []*communication.BotMessage
 	msg := communication.BotMessage{
 		Text:          "Выберите тип загружаемого медиа",
 		KeyboardStyle: communication.KeyboardStyle_Chat,
-	}
-
-	for k := range contentTypeHelper {
-		msg.Buttons = append(msg.Buttons, &communication.Button{Title: k, Command: k})
+		Buttons:       frontend.GetContentTypesButtonsRu(),
 	}
 
 	return false, []*communication.BotMessage{&msg}

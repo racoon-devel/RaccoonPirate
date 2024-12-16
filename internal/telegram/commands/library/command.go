@@ -2,7 +2,6 @@ package library
 
 import (
 	"github.com/RacoonMediaServer/rms-bot-client/pkg/command"
-	"github.com/RacoonMediaServer/rms-media-discovery/pkg/media"
 	"github.com/RacoonMediaServer/rms-packages/pkg/communication"
 	"github.com/racoon-devel/raccoon-pirate/internal/frontend"
 	"go-micro.dev/v4/logger"
@@ -20,23 +19,17 @@ type libraryCommand struct {
 	l logger.Logger
 }
 
-var contentTypeHelper = map[string]media.ContentType{
-	"Фильмы": media.Movies,
-	"Музыка": media.Music,
-	"Другое": media.Other,
-}
-
 func (s *libraryCommand) Do(ctx command.Context) (bool, []*communication.BotMessage) {
 	if len(ctx.Arguments) == 0 {
-		msg := communication.BotMessage{Text: "Что ищем?"}
-		msg.KeyboardStyle = communication.KeyboardStyle_Chat
-		for k := range contentTypeHelper {
-			msg.Buttons = append(msg.Buttons, &communication.Button{Title: k, Command: k})
+		msg := communication.BotMessage{
+			Text:          "Что ищем?",
+			KeyboardStyle: communication.KeyboardStyle_Chat,
+			Buttons:       frontend.GetContentTypesButtonsRu(),
 		}
 		return false, []*communication.BotMessage{&msg}
 	}
 
-	contentType, ok := contentTypeHelper[ctx.Arguments[0]]
+	contentType, ok := frontend.DetermineContentType(ctx.Arguments[0])
 	if !ok {
 		return false, command.ReplyText("Неизвестный тип медиа")
 	}
