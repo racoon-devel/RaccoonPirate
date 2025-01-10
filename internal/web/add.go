@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/RacoonMediaServer/rms-library/pkg/selector"
 	"github.com/RacoonMediaServer/rms-media-discovery/pkg/client/models"
 	"github.com/RacoonMediaServer/rms-media-discovery/pkg/media"
 	"github.com/RacoonMediaServer/rms-media-discovery/pkg/model"
@@ -12,7 +13,6 @@ import (
 
 	"github.com/racoon-devel/raccoon-pirate/internal/frontend"
 	internalModel "github.com/racoon-devel/raccoon-pirate/internal/model"
-	"github.com/racoon-devel/raccoon-pirate/internal/selector"
 )
 
 type selectSeasonPage struct {

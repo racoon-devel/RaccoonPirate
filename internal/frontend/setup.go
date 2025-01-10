@@ -1,6 +1,6 @@
 package frontend
 
-import "github.com/racoon-devel/raccoon-pirate/internal/selector"
+import "github.com/RacoonMediaServer/rms-library/pkg/selector"
 
 type Setup struct {
 	DiscoveryService DiscoveryService

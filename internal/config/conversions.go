@@ -1,6 +1,6 @@
 package config
 
-import "github.com/racoon-devel/raccoon-pirate/internal/selector"
+import "github.com/RacoonMediaServer/rms-library/pkg/selector"
 
 func (c Selector) GetCriterion() selector.Criteria {
 	switch c.Criterion {

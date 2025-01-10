@@ -8,6 +8,7 @@ import (
 	"runtime"
 	"syscall"
 
+	"github.com/RacoonMediaServer/rms-library/pkg/selector"
 	"github.com/apex/log"
 	"github.com/racoon-devel/raccoon-pirate/internal/config"
 	"github.com/racoon-devel/raccoon-pirate/internal/db"
@@ -15,7 +16,6 @@ import (
 	"github.com/racoon-devel/raccoon-pirate/internal/frontend"
 	"github.com/racoon-devel/raccoon-pirate/internal/remote"
 	"github.com/racoon-devel/raccoon-pirate/internal/representation"
-	"github.com/racoon-devel/raccoon-pirate/internal/selector"
 	"github.com/racoon-devel/raccoon-pirate/internal/telegram"
 	"github.com/racoon-devel/raccoon-pirate/internal/torrents"
 	"github.com/racoon-devel/raccoon-pirate/internal/updater"
