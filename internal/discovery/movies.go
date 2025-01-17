@@ -10,14 +10,15 @@ import (
 
 func convertMovieInfo(in *models.SearchMoviesResult) *model.Movie {
 	out := &model.Movie{
-		ID:          *in.ID,
-		Title:       *in.Title,
-		Description: in.Description,
-		Year:        uint(in.Year),
-		Poster:      in.Poster,
-		Genres:      in.Genres,
-		Rating:      float32(in.Rating),
-		Seasons:     uint(in.Seasons),
+		ID:            *in.ID,
+		Title:         *in.Title,
+		OriginalTitle: in.OriginalTitle,
+		Description:   in.Description,
+		Year:          uint(in.Year),
+		Poster:        in.Poster,
+		Genres:        in.Genres,
+		Rating:        float32(in.Rating),
+		Seasons:       uint(in.Seasons),
 	}
 
 	if in.Type == "tv-series" {

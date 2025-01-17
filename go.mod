@@ -6,7 +6,7 @@ require (
 	github.com/RacoonMediaServer/distribyted v1.0.8
 	github.com/RacoonMediaServer/rms-bot-client v1.5.3
 	github.com/RacoonMediaServer/rms-library v1.3.0
-	github.com/RacoonMediaServer/rms-media-discovery v1.7.4
+	github.com/RacoonMediaServer/rms-media-discovery v1.8.0
 	github.com/RacoonMediaServer/rms-packages v1.15.3
 	github.com/anacrolix/missinggo/v2 v2.7.3
 	github.com/anacrolix/torrent v1.55.0

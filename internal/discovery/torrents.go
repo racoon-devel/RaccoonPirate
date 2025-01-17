@@ -9,6 +9,7 @@ import (
 	"github.com/RacoonMediaServer/rms-media-discovery/pkg/client/client/torrents"
 	"github.com/RacoonMediaServer/rms-media-discovery/pkg/client/models"
 	"github.com/RacoonMediaServer/rms-media-discovery/pkg/model"
+	"github.com/apex/log"
 )
 
 func asPtr[T any](val T) *T {
@@ -65,7 +66,18 @@ func (s *Service) SearchMovieTorrents(ctx context.Context, mov *model.Movie, sea
 		req.SearchParameters.Season = *season
 	}
 
-	return s.searchTorrents(ctx, &req)
+	result, err := s.searchTorrents(ctx, &req)
+	log.Debugf("SearchMovieTorrents len(result) = %d, err = %s, originTitle = %s", len(result), err, mov.OriginalTitle)
+	if err == nil && len(result) == 0 && mov.OriginalTitle != mov.Title && mov.OriginalTitle != "" {
+		log.Debugf("Nothing found, try original movie title (%s)", mov.OriginalTitle)
+		req.SearchParameters.Q = &mov.OriginalTitle
+		if mov.Type == model.MovieType_TvSeries {
+			req.SearchParameters.Year = 0
+		}
+		result, err = s.searchTorrents(ctx, &req)
+	}
+
+	return result, err
 }
 
 func (s *Service) SearchMusicTorrents(ctx context.Context, m model.Music) ([]*models.SearchTorrentsResult, error) {
