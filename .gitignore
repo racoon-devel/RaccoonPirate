@@ -31,3 +31,6 @@ storage
 
 # Release directory
 .release
+
+# VSCode directory
+.vscode

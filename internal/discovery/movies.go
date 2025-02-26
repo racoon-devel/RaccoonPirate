@@ -37,6 +37,7 @@ func (s *Service) SearchMovies(ctx context.Context, q string) ([]*model.Movie, e
 		Q:       q,
 		Context: ctx,
 	}
+
 	resp, err := s.cli.Movies.SearchMovies(req, s.auth)
 	if err != nil {
 		return nil, err

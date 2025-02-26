@@ -3,6 +3,7 @@ package frontend
 import (
 	"context"
 
+	"github.com/RacoonMediaServer/rms-library/pkg/selector"
 	"github.com/RacoonMediaServer/rms-media-discovery/pkg/client/models"
 	"github.com/RacoonMediaServer/rms-media-discovery/pkg/media"
 	"github.com/RacoonMediaServer/rms-media-discovery/pkg/model"
@@ -22,4 +23,9 @@ type TorrentService interface {
 	Add(record *internalModel.Torrent, data []byte) error
 	GetTorrentsList(mediaType media.ContentType) ([]*internalModel.Torrent, error)
 	Remove(torrent string) error
+}
+
+type SmartSearchService interface {
+	SmartSearchMovieTorrents(ctx context.Context, mov *model.Movie, sel selector.MediaSelector, selopts selector.Options, season *int64) (torrents [][]byte, err error)
+	SearchMovieTorrents(ctx context.Context, mov *model.Movie, season *int64) ([]*models.SearchTorrentsResult, error)
 }

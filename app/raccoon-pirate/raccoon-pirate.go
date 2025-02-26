@@ -16,6 +16,7 @@ import (
 	"github.com/racoon-devel/raccoon-pirate/internal/frontend"
 	"github.com/racoon-devel/raccoon-pirate/internal/remote"
 	"github.com/racoon-devel/raccoon-pirate/internal/representation"
+	"github.com/racoon-devel/raccoon-pirate/internal/smartsearch"
 	"github.com/racoon-devel/raccoon-pirate/internal/telegram"
 	"github.com/racoon-devel/raccoon-pirate/internal/torrents"
 	"github.com/racoon-devel/raccoon-pirate/internal/updater"
@@ -85,11 +86,13 @@ func main() {
 	defer torrentService.Stop()
 
 	discoveryService := discovery.NewService(apiConn, conf.Discovery)
+	smartSearchService := smartsearch.NewService(apiConn, conf.Discovery)
 
 	frontendSetup := frontend.Setup{
-		DiscoveryService: discoveryService,
-		TorrentService:   torrentService,
-		SelectCriterion:  conf.Selector.GetCriterion(),
+		DiscoveryService:   discoveryService,
+		TorrentService:     torrentService,
+		SmartSearchService: smartSearchService,
+		SelectCriterion:    conf.Selector.GetCriterion(),
 		Selector: selector.New(selector.Settings{
 			MinSeasonSizeMB:     int64(conf.Selector.MinSeasonSize),
 			MaxSeasonSizeMB:     int64(conf.Selector.MaxSeasonSize),

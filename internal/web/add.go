@@ -1,9 +1,11 @@
 package web
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 
+	"github.com/RacoonMediaServer/rms-library/pkg/movsearch"
 	"github.com/RacoonMediaServer/rms-library/pkg/selector"
 	"github.com/RacoonMediaServer/rms-media-discovery/pkg/client/models"
 	"github.com/RacoonMediaServer/rms-media-discovery/pkg/media"
@@ -128,8 +130,25 @@ func (s *Server) selectMovieTorrent(ctx *gin.Context, l *log.Entry, q *addQuery,
 		return true
 	}
 
+	criteria := s.SelectCriterion
+	if q.season == "all" {
+		criteria = selector.CriteriaCompact
+	}
+
+	opts := selector.Options{
+		Log:       l,
+		Criteria:  criteria,
+		MediaType: media.Movies,
+	}
+
+	// Imporved torrent movie selection
+	if !q.selectTorrent {
+		s.smartSelectMovieTorrent(ctx, l, mov, getSeasonNo(q.season), opts)
+		return false
+	}
+
 	// Search torrents
-	list, err := s.DiscoveryService.SearchMovieTorrents(ctx, mov, getSeasonNo(q.season))
+	list, err := s.SmartSearchService.SearchMovieTorrents(ctx, mov, getSeasonNo(q.season))
 	if err != nil {
 		l.Errorf("Search torrents failed: %s", err)
 		displayError(ctx, http.StatusInternalServerError, "Search torrents failed")
@@ -140,17 +159,6 @@ func (s *Server) selectMovieTorrent(ctx *gin.Context, l *log.Entry, q *addQuery,
 		l.Warnf("Nothing found")
 		displayError(ctx, http.StatusNotFound, "Nothing found")
 		return false
-	}
-
-	criteria := s.SelectCriterion
-	if q.season == "all" {
-		criteria = selector.CriteriaCompact
-	}
-
-	opts := selector.Options{
-		Log:       l,
-		Criteria:  criteria,
-		MediaType: media.Movies,
 	}
 
 	// Select concrete torrent manually by user
@@ -169,6 +177,39 @@ func (s *Server) selectMovieTorrent(ctx *gin.Context, l *log.Entry, q *addQuery,
 	selected := s.Selector.Select(list, opts)
 	q.torrent = *selected.Link
 	return true
+}
+
+func (s *Server) smartSelectMovieTorrent(ctx *gin.Context, l *log.Entry, mov *model.Movie, season *int64, opts selector.Options) {
+	torrents, err := s.SmartSearchService.SmartSearchMovieTorrents(ctx, mov, s.Selector, opts, season)
+	if err != nil {
+		l.Errorf("Find torrents failed: %s", err)
+		if errors.Is(err, movsearch.ErrAnyTorrentsNotFound) {
+			displayError(ctx, http.StatusNotFound, "Nothing found")
+			return
+		}
+		displayError(ctx, http.StatusInternalServerError, "Search torrents failed")
+		return
+	}
+
+	l.Infof("FOUND %d torrent", len(torrents))
+
+	torrentRecord := &internalModel.Torrent{}
+	torrentRecord.ExpandByMovie(mov)
+
+	somethingAdded := false
+	for _, torrent := range torrents {
+		if err = s.TorrentService.Add(torrentRecord, torrent); err != nil {
+			l.Errorf("Add torrent failed: %s", err)
+		} else {
+			somethingAdded = true
+		}
+	}
+
+	if !somethingAdded {
+		displayError(ctx, http.StatusInternalServerError, "Add torrents failed")
+	} else {
+		displayOK(ctx, "Added", "/torrents?media-type="+frontend.GetContentTypeID(media.Movies))
+	}
 }
 
 func (s *Server) selectMusicTorrent(ctx *gin.Context, l *log.Entry, q *addQuery, m model.Music) bool {

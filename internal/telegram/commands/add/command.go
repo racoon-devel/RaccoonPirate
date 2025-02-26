@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/RacoonMediaServer/rms-bot-client/pkg/command"
+	"github.com/RacoonMediaServer/rms-library/pkg/movsearch"
 	"github.com/RacoonMediaServer/rms-library/pkg/selector"
 	"github.com/RacoonMediaServer/rms-media-discovery/pkg/client/models"
 	"github.com/RacoonMediaServer/rms-media-discovery/pkg/media"
@@ -110,16 +111,6 @@ func (d *addCommand) doInitial(ctx command.Context) (bool, []*communication.BotM
 }
 
 func (d *addCommand) addAuto(ctx command.Context) (bool, []*communication.BotMessage) {
-	torrents, err := d.searchTorrents(ctx)
-	if err != nil {
-		d.l.Logf(logger.ErrorLevel, "Search torrents failed: %s", err)
-		return true, command.ReplyText(command.SomethingWentWrong)
-	}
-
-	if len(torrents) == 0 {
-		return true, command.ReplyText("Не удалось найти подходящую раздачу")
-	}
-
 	opts := selector.Options{
 		MediaType:   d.torrentRecord.Type,
 		Criteria:    d.s.SelectCriterion,
@@ -134,8 +125,49 @@ func (d *addCommand) addAuto(ctx command.Context) (bool, []*communication.BotMes
 		opts.Query = d.query
 	}
 
+	// Improved search movie torrents
+	if d.torrentRecord.Type == media.Movies {
+		return d.addAutoMovie(ctx, opts)
+	}
+
+	torrents, err := d.searchTorrents(ctx)
+	if err != nil {
+		d.l.Logf(logger.ErrorLevel, "Search torrents failed: %s", err)
+		return true, command.ReplyText(command.SomethingWentWrong)
+	}
+
+	if len(torrents) == 0 {
+		return true, command.ReplyText("Не удалось найти подходящую раздачу")
+	}
+
 	picked := d.s.Selector.Select(torrents, opts)
 	return d.addTorrent(ctx, *picked.Link)
+}
+
+func (d *addCommand) addAutoMovie(ctx command.Context, opts selector.Options) (bool, []*communication.BotMessage) {
+	torrents, err := d.s.SmartSearchService.SmartSearchMovieTorrents(ctx, d.mov, d.s.Selector, opts, d.season)
+	if err != nil {
+		d.l.Logf(logger.ErrorLevel, "Search torrents failed: %s", err)
+		if errors.Is(err, movsearch.ErrAnyTorrentsNotFound) { // TODO: is not nice solution
+			return true, command.ReplyText("Не удалось найти подходящую раздачу")
+		}
+		return true, command.ReplyText(command.SomethingWentWrong)
+	}
+
+	somethingAdded := false
+	for _, torrent := range torrents {
+		if err = d.s.TorrentService.Add(&d.torrentRecord, torrent); err != nil {
+			d.l.Logf(logger.ErrorLevel, "Add torrent failed: %s", err)
+		} else {
+			somethingAdded = true
+		}
+	}
+
+	if !somethingAdded {
+		return true, command.ReplyText(command.SomethingWentWrong)
+	}
+
+	return true, command.ReplyText("Добавлено")
 }
 
 func (d *addCommand) addSelect(ctx command.Context) (bool, []*communication.BotMessage) {
@@ -213,7 +245,7 @@ func (d *addCommand) doWaitFile(ctx command.Context) (bool, []*communication.Bot
 func (d *addCommand) searchTorrents(ctx context.Context) (result []*models.SearchTorrentsResult, err error) {
 	switch d.torrentRecord.Type {
 	case media.Movies:
-		result, err = d.s.DiscoveryService.SearchMovieTorrents(ctx, d.mov, d.season)
+		result, err = d.s.SmartSearchService.SearchMovieTorrents(ctx, d.mov, d.season)
 	case media.Music:
 		result, err = d.s.DiscoveryService.SearchMusicTorrents(ctx, d.mus)
 	case media.Other:
