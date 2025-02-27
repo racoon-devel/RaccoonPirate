@@ -5,7 +5,7 @@ go 1.22.0
 require (
 	github.com/RacoonMediaServer/distribyted v1.0.8
 	github.com/RacoonMediaServer/rms-bot-client v1.5.3
-	github.com/RacoonMediaServer/rms-library v1.3.3-0.20250224154605-7227763e8eab
+	github.com/RacoonMediaServer/rms-library v1.3.3-0.20250227110204-3b28525ababa
 	github.com/RacoonMediaServer/rms-media-discovery v1.8.0
 	github.com/RacoonMediaServer/rms-packages v1.16.4
 	github.com/anacrolix/missinggo/v2 v2.7.3

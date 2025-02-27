@@ -63,6 +63,8 @@ github.com/RacoonMediaServer/rms-library v1.3.0 h1:toy9VLO+gL0AFnKNmdOOfllRQ1yST
 github.com/RacoonMediaServer/rms-library v1.3.0/go.mod h1:i46U/CZe0Wm+z8ePm2nfoJxeIT7Om/Vj/NanvlR7RHk=
 github.com/RacoonMediaServer/rms-library v1.3.3-0.20250224154605-7227763e8eab h1:Mn/CuIy+rrZZgc57zpNPCVQiSa7sv0JjQBmg+pEcy1A=
 github.com/RacoonMediaServer/rms-library v1.3.3-0.20250224154605-7227763e8eab/go.mod h1:HrhcXxEHsJuUfn1T8XZbldRF4cU504veEYvud1Ugmgc=
+github.com/RacoonMediaServer/rms-library v1.3.3-0.20250227110204-3b28525ababa h1:c8+OkqjS0lZRUtwX6oElI/4NyrkoVIlNx+u8vdGm4lk=
+github.com/RacoonMediaServer/rms-library v1.3.3-0.20250227110204-3b28525ababa/go.mod h1:HrhcXxEHsJuUfn1T8XZbldRF4cU504veEYvud1Ugmgc=
 github.com/RacoonMediaServer/rms-media-discovery v1.8.0 h1:TLNPb9RegNEdmAtgRa5bm4BLVC9OgXXsD7dFj/suVF8=
 github.com/RacoonMediaServer/rms-media-discovery v1.8.0/go.mod h1:R4+e/cad+Wt5OLglSey6ESUolwhBYU4Xx4uAgxNQODM=
 github.com/RacoonMediaServer/rms-packages v1.15.3 h1:d/ddR41olEWnDVe6mMeqWqrBzcr4TUbPxQnyUaMaYfo=
