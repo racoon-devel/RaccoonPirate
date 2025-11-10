@@ -25,7 +25,7 @@ The application consumes torrent-files or magnet links to peering networks for d
 
 The application mounts a directory as Fuse file system and manages I/O operations for the directory. After torrent registration - content directory layout maps to the cache directory. User can use any media player for play the content. Data will be downloading on-the-fly. Data chunk rotation is supported by set data storage limit in config file. 
 
-### 📱 User Interface
+## 📱 User Interface
 
 There are a few frontends available:
 
@@ -38,7 +38,7 @@ Frontends provide:
 * upload .torrent files directly;
 * manage added items.
 
-#### Web
+### Web
 
 ![Web](contrib/web.png)
 
