@@ -75,6 +75,7 @@ func (s *Server) searchHandler(ctx *gin.Context) {
 
 	mediaType := ctx.Query("media-type")
 	contentType, ok := frontend.DetermineContentType(mediaType)
+
 	if !ok {
 		contentType = media.Movies
 		mediaType = frontend.GetContentTypeID(media.Movies)

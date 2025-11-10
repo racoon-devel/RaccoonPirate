@@ -19,21 +19,20 @@ func (s *Server) getTorrentsHandler(ctx *gin.Context) {
 	mediaType := ctx.Query("media-type")
 	page := torrentsPage{}
 
-	if mediaType != "" {
-		contentType, ok := frontend.DetermineContentType(mediaType)
-		if !ok {
-			contentType = media.Movies
-		}
-
-		list, err := s.TorrentService.GetTorrentsList(contentType)
-		if err != nil {
-			s.l.Errorf("Load existing torrents list failed: %s", err)
-			displayError(ctx, http.StatusInternalServerError, "Load torrents list failed")
-			return
-		}
-		page.Torrents = list
-		page.MediaType = mediaType
+	contentType, ok := frontend.DetermineContentType(mediaType)
+	if !ok {
+		contentType = media.Movies
+		mediaType = frontend.GetContentTypeID(contentType)
 	}
+
+	list, err := s.TorrentService.GetTorrentsList(contentType)
+	if err != nil {
+		s.l.Errorf("Load existing torrents list failed: %s", err)
+		displayError(ctx, http.StatusInternalServerError, "Load torrents list failed")
+		return
+	}
+	page.Torrents = list
+	page.MediaType = mediaType
 
 	ctx.HTML(http.StatusOK, "multimedia.downloads.tmpl", &page)
 }
