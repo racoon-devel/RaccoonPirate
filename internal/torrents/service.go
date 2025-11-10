@@ -85,7 +85,7 @@ func New(cfg config.Storage, db Database, rep RepresentationService) (*Service, 
 	stats := torrent.NewStats()
 
 	loaders := []torrent.DatabaseLoader{&s.layout}
-	service := torrent.NewService(loaders, stats, cli, conf.AddTimeout, conf.ReadTimeout)
+	service := torrent.NewService(loaders, stats, cli, conf.AddTimeout, conf.ReadTimeout, true)
 
 	fss, err := service.Load()
 	if err != nil {
