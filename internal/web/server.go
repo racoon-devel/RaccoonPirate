@@ -26,12 +26,16 @@ type Server struct {
 	cache *cache.Cache
 }
 
+func (s *Server) printVersion() string {
+	return s.Version
+}
+
 func (s *Server) Run(host string, port uint16) error {
 	s.l = log.WithField("from", "web")
 	s.g = gin.Default()
 	s.cache = cache.New(cacheItemTTL)
 
-	root := template.New("root")
+	root := template.New("root").Funcs(template.FuncMap{"printVersion": s.printVersion})
 	templates := template.Must(root.ParseFS(templatesFS, "templates/*.tmpl"))
 	s.g.SetHTMLTemplate(templates)
 	s.g.StaticFS("/css", http.FS(wrapFS(webFS, "content/css")))

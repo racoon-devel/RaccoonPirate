@@ -89,6 +89,7 @@ func main() {
 	smartSearchService := smartsearch.NewService(apiConn, conf.Discovery)
 
 	frontendSetup := frontend.Setup{
+		Version:            Version,
 		DiscoveryService:   discoveryService,
 		TorrentService:     torrentService,
 		SmartSearchService: smartSearchService,
