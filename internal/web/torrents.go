@@ -2,6 +2,7 @@ package web
 
 import (
 	"net/http"
+	"sort"
 
 	"github.com/RacoonMediaServer/rms-media-discovery/pkg/media"
 	"github.com/gin-gonic/gin"
@@ -31,6 +32,14 @@ func (s *Server) getTorrentsHandler(ctx *gin.Context) {
 		displayError(ctx, http.StatusInternalServerError, "Load torrents list failed")
 		return
 	}
+
+	sort.SliceStable(list, func(i, j int) bool {
+		if list[i].BelongsTo == list[j].BelongsTo {
+			return list[i].Title < list[j].Title
+		}
+		return list[i].BelongsTo < list[j].BelongsTo
+	})
+
 	page.Torrents = list
 	page.MediaType = mediaType
 
