@@ -5,7 +5,7 @@
 ![Linux](https://img.shields.io/badge/Linux-FCC624?style=flat&logo=linux&logoColor=black)
 ![Raspberry Pi](https://img.shields.io/badge/-Raspberry_Pi-C51A4A?style=flat&logo=Raspberry-Pi)
 
-![Logo](contrib/logo.jpg)
+![Logo](contrib/logo.png)
 
 Application for consuming media content from torrent trackers on-the-fly.
 
