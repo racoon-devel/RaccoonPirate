@@ -4,7 +4,7 @@ go 1.24.0
 
 require (
 	github.com/RacoonMediaServer/distribyted v1.1.1
-	github.com/RacoonMediaServer/rms-bot-client v1.5.3
+	github.com/RacoonMediaServer/rms-bot-client v1.6.3
 	github.com/RacoonMediaServer/rms-library v1.3.3-0.20250227110204-3b28525ababa
 	github.com/RacoonMediaServer/rms-media-discovery v1.8.0
 	github.com/RacoonMediaServer/rms-packages v1.16.4

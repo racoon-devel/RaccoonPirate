@@ -51,8 +51,8 @@ github.com/PuerkitoBio/purell v1.1.1/go.mod h1:c11w/QuzBsJSee3cPx9rAFu61PvFxuPbt
 github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578/go.mod h1:uGdkoq3SwY9Y+13GIhn11/XLaGBb4BfwItxLd5jeuXE=
 github.com/RacoonMediaServer/distribyted v1.1.1 h1:VHWu6rfLPPenx+9M8Q30R4h4Yz+ub4zkwvZfOsMJBiE=
 github.com/RacoonMediaServer/distribyted v1.1.1/go.mod h1:6GrDlxAz0n1vdvWMhgYUnXqeWuy5DFj1TbxZWW5D70E=
-github.com/RacoonMediaServer/rms-bot-client v1.5.3 h1:l3QZeMLVxlKZ26dIX5NJFcZJySGZ8ZXjbw/g/Pe5JWM=
-github.com/RacoonMediaServer/rms-bot-client v1.5.3/go.mod h1:Qd3+8ZeQ5cGEeesjr+fmb3nQCNYskcrQX6eQQvhVTeA=
+github.com/RacoonMediaServer/rms-bot-client v1.6.3 h1:OD1p3bFRDAUks5EJ55TbZR+NQwdkui7bfBHZ65zMNlM=
+github.com/RacoonMediaServer/rms-bot-client v1.6.3/go.mod h1:0dve4KUflUkNDKZkcneux4DA+jdYOwTYjSHxyb3BGEM=
 github.com/RacoonMediaServer/rms-library v1.3.3-0.20250227110204-3b28525ababa h1:c8+OkqjS0lZRUtwX6oElI/4NyrkoVIlNx+u8vdGm4lk=
 github.com/RacoonMediaServer/rms-library v1.3.3-0.20250227110204-3b28525ababa/go.mod h1:HrhcXxEHsJuUfn1T8XZbldRF4cU504veEYvud1Ugmgc=
 github.com/RacoonMediaServer/rms-media-discovery v1.8.0 h1:TLNPb9RegNEdmAtgRa5bm4BLVC9OgXXsD7dFj/suVF8=
