@@ -1,6 +1,8 @@
 {{ define "footer" }}
         </div>
 
+{{ $tgData := getTelegramAccessData }}
+
         <footer style="
             position: fixed;
             bottom: 0;
@@ -11,7 +13,10 @@
             text-align: center;
             padding: 5px;
             ">
-            RaccoonPirate {{ printVersion }} 🔗 <a href="https://github.com/racoon-devel/RaccoonPirate">GitHub</a>
+            RaccoonPirate {{ printVersion }} 🔗 <a href="https://github.com/racoon-devel/RaccoonPirate">GitHub</a> 
+            {{ if $tgData.Enabled }}
+            🤖 <a href="{{ $tgData.Url }}">@RaccoonPirateBot</a> 🔒 Access Code: <b>{{ $tgData.Code }}</b>
+            {{ end }}
         </footer>
     </body>
 </html>

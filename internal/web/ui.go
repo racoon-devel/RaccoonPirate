@@ -20,6 +20,12 @@ type okPage struct {
 	Text string
 }
 
+type telegramAccessData struct {
+	Enabled bool
+	Url     string
+	Code    string
+}
+
 func displayError(ctx *gin.Context, status int, err string) {
 	ctx.HTML(status, "error.tmpl", &errorPage{
 		Error: err,

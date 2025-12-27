@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/RacoonMediaServer/rms-bot-client/pkg/bot"
@@ -35,6 +36,9 @@ type Bot struct {
 
 	ctx    context.Context
 	cancel context.CancelFunc
+
+	mu     sync.Mutex
+	tgData frontend.TelegramAccessData
 }
 
 func (b *Bot) Run() {
@@ -70,6 +74,20 @@ func (b *Bot) obtainIdentificationCode() {
 	s += fmt.Sprintf("* %-47s*\n", "Code: "+resp.Code)
 	s += strings.Repeat("*", 50) + "\n"
 	log.Infof("Telegram connection info: \n%s", s)
+
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	b.tgData = frontend.TelegramAccessData{
+		BotUrl: botURL,
+		IdCode: resp.Code,
+	}
+}
+
+func (b *Bot) GetTelegramAccessData() frontend.TelegramAccessData {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+
+	return b.tgData
 }
 
 func (b *Bot) Shutdown() {

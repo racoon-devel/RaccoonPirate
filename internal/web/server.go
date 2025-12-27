@@ -30,12 +30,28 @@ func (s *Server) printVersion() string {
 	return s.Version
 }
 
+func (s *Server) getTelegramAccessData() telegramAccessData {
+	if s.TelegramAccessProvider == nil {
+		return telegramAccessData{Enabled: false}
+	}
+	data := s.TelegramAccessProvider.GetTelegramAccessData()
+	return telegramAccessData{
+		Enabled: data.IdCode != "",
+		Url:     data.BotUrl,
+		Code:    data.IdCode,
+	}
+}
+
 func (s *Server) Run(host string, port uint16) error {
 	s.l = log.WithField("from", "web")
 	s.g = gin.Default()
 	s.cache = cache.New(cacheItemTTL)
 
-	root := template.New("root").Funcs(template.FuncMap{"printVersion": s.printVersion})
+	funcs := template.FuncMap{
+		"printVersion":          s.printVersion,
+		"getTelegramAccessData": s.getTelegramAccessData,
+	}
+	root := template.New("root").Funcs(funcs)
 	templates := template.Must(root.ParseFS(templatesFS, "templates/*.tmpl"))
 	s.g.SetHTMLTemplate(templates)
 	s.g.StaticFS("/css", http.FS(wrapFS(webFS, "content/css")))

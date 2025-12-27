@@ -103,6 +103,16 @@ func main() {
 		}),
 	}
 
+	if conf.Frontend.Telegram.Enabled {
+		bot := telegram.Bot{
+			Setup:     frontendSetup,
+			Transport: apiConn.NewBotSession(conf.Frontend.Telegram.ApiPath),
+		}
+		frontendSetup.TelegramAccessProvider = &bot
+		bot.Run()
+		defer bot.Shutdown()
+	}
+
 	if conf.Frontend.Http.Enabled {
 		webServer := web.Server{Setup: frontendSetup}
 		if err = webServer.Run(conf.Frontend.Http.Host, conf.Frontend.Http.Port); err != nil {
@@ -110,15 +120,6 @@ func main() {
 		} else {
 			defer webServer.Shutdown()
 		}
-	}
-
-	if conf.Frontend.Telegram.Enabled {
-		bot := telegram.Bot{
-			Setup:     frontendSetup,
-			Transport: apiConn.NewBotSession(conf.Frontend.Telegram.ApiPath),
-		}
-		bot.Run()
-		defer bot.Shutdown()
 	}
 
 	signalCh := make(chan os.Signal, 1)
