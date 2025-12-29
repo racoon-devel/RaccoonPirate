@@ -2,8 +2,8 @@
 frontend:
   http:
     enabled: true
-    host: "127.0.0.1"
-    port: 8081
+    host: "0.0.0.0"
+    port: 8080
   telegram:
     enabled: true
     api-path: "/bot"
@@ -29,7 +29,7 @@ discovery:
 
 # Media storage options
 storage:
-  # Directory for temporary store data
+  # Directory for temporary store data (if path is relative - it is relative of user home)
   directory: "/userdata/system/raccoon_pirate/storage"
 
   # How to store database
@@ -55,7 +55,7 @@ representation:
   # split by following subcategories
   enabled: true
 
-  # Path to folder, which will contains structures hierarchy of symlinks to content
+  # Path to folder, which will contains structures hierarchy of symlinks to content (if path is relative - it is relative of user home)
   directory: "/userdata/Media"
 
   # Split content to categories
