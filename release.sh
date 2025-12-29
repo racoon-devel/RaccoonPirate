@@ -15,9 +15,9 @@ make build
 cp .build/raccoon-pirate .release/raccoon-pirate-linux-${arch}
 if [ "${arch}" = "x86_64" ]; then
     cp .build/raccoon-pirate .release/raccoon-pirate-linux-amd64
+    VERSION=${version} ARCH=amd64 nfpm pkg -p deb --target .release/
+    VERSION=${version} ARCH=amd64 nfpm pkg -p rpm --target .release/
 fi
-VERSION=${version} ARCH=${arch} nfpm pkg -p deb --target .release/
-VERSION=${version} ARCH=${arch} nfpm pkg -p rpm --target .release/
 make clean
 
 arch="arm64"
