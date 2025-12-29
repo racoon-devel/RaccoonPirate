@@ -1,0 +1,32 @@
+name: raccoon-pirate
+arch: ${ARCH}
+platform: linux
+version: ${VERSION}
+section: video
+priority: optional
+release: "1"
+
+maintainer: Raccoon Developer <mrenotenot@gmail.com>
+description: |
+  RaccoonPirate is a lightweight media consuming application designed for personal use.
+vendor: RaccoonDev
+homepage: https://github.com/racoon-devel/RaccoonPirate
+license: MIT
+
+depends:
+  - ca-certificates
+  - fuse
+
+contents:
+  - src: .build/raccoon-pirate
+    dst: /usr/bin/raccoon-pirate
+
+  - src: configs
+    dst: /etc/raccoon-pirate
+    type: tree
+
+rpm:
+  summary: RaccoonPirate - Personal Media Consuming Application
+  group: Applications/Multimedia
+
+
