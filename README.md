@@ -23,7 +23,7 @@ The application consumes torrent-files or magnet links to peering networks for d
 
 ### Delivery Method
 
-The application mounts a directory as Fuse file system and manages I/O operations for the directory. After torrent registration - content directory layout maps to the cache directory. User can use any media player for play the content. Data will be downloading on-the-fly. Data chunk rotation is supported by set data storage limit in config file. 
+The application mounts a directory as Fuse file system and manages I/O operations for the directory. After torrent registration - content directory layout maps to the cache directory. User can use any media player for play the content. Data will be downloading on-the-fly. Data chunk rotation is supported by set data storage limit in a config file. 
 
 ## 📱 User Interface
 
@@ -44,7 +44,7 @@ Frontends provide:
 
 ### Telegram
 
-[RaccoonPirateBot](https://t.me/RaccoonPirateBot) is running on the backend side and be able to serve multiple clients. **Security code for link your telegram account to the bot can be obtained from a RaccoonPirate log**. Example of the message:
+[RaccoonPirateBot](https://t.me/RaccoonPirateBot) is running on the backend side and be able to serve multiple clients. **Security code for link your telegram account to the bot can be obtained from a RaccoonPirate log or Web interface**. Example of the message:
 
 ```
 2025/11/10 23:49:05  info Telegram connection info: 
@@ -60,7 +60,8 @@ Frontends provide:
 ## 💻 Supported Platforms
 
 * Linux;
-* Batocera on Raspberry PI (retro-gaming Linux distro, RaccoonPirate supports integration).
+* Batocera on Raspberry PI (retro-gaming Linux distro, RaccoonPirate supports integration);
+* Raspberry Pi OS.
 
 ## 👨‍💻 Use Case Scenarios
 
