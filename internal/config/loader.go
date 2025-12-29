@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/ghodss/yaml"
@@ -55,5 +56,22 @@ func Load(destination string) (Config, error) {
 
 	var result Config
 	err = json.Unmarshal(jsonRaw, &result)
+	if err != nil {
+		return Config{}, err
+	}
+
+	userHomeDir, err := os.UserHomeDir()
+	if err != nil {
+		return Config{}, fmt.Errorf("get user home directory failed: %w", err)
+	}
+
+	if !filepath.IsAbs(result.Storage.Directory) {
+		result.Storage.Directory = filepath.Join(userHomeDir, result.Storage.Directory)
+	}
+
+	if !filepath.IsAbs(result.Representation.Directory) {
+		result.Representation.Directory = filepath.Join(userHomeDir, result.Representation.Directory)
+	}
+
 	return result, err
 }
