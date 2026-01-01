@@ -27,6 +27,8 @@ const botURL = "https://t.me/RaccoonPirateBot"
 
 const cacheItemTTL = 1 * time.Hour
 
+const refreshCodeInterval = 1 * time.Minute
+
 type Bot struct {
 	frontend.Setup
 	Transport bot.Transport
@@ -59,7 +61,23 @@ func (b *Bot) Run() {
 
 	b.ctx, b.cancel = context.WithCancel(context.Background())
 
-	go b.obtainIdentificationCode()
+	go b.refreshIdentificationCode()
+}
+
+func (b *Bot) refreshIdentificationCode() {
+	timer := time.NewTicker(refreshCodeInterval)
+	defer timer.Stop()
+
+	b.obtainIdentificationCode()
+
+	for {
+		select {
+		case <-timer.C:
+			b.obtainIdentificationCode()
+		case <-b.ctx.Done():
+			return
+		}
+	}
 }
 
 func (b *Bot) obtainIdentificationCode() {
@@ -69,17 +87,20 @@ func (b *Bot) obtainIdentificationCode() {
 		return
 	}
 
-	s := strings.Repeat("*", 50) + "\n"
-	s += fmt.Sprintf("* %-47s*\n", "Bot: "+botURL)
-	s += fmt.Sprintf("* %-47s*\n", "Code: "+resp.Code)
-	s += strings.Repeat("*", 50) + "\n"
-	log.Infof("Telegram connection info: \n%s", s)
-
 	b.mu.Lock()
-	defer b.mu.Unlock()
+	changed := b.tgData.IdCode != resp.Code
 	b.tgData = frontend.TelegramAccessData{
 		BotUrl: botURL,
 		IdCode: resp.Code,
+	}
+	b.mu.Unlock()
+
+	if changed {
+		s := strings.Repeat("*", 50) + "\n"
+		s += fmt.Sprintf("* %-47s*\n", "Bot: "+botURL)
+		s += fmt.Sprintf("* %-47s*\n", "Code: "+resp.Code)
+		s += strings.Repeat("*", 50) + "\n"
+		log.Infof("Telegram connection info: \n%s", s)
 	}
 }
 
