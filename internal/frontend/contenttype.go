@@ -12,7 +12,7 @@ var contentTypeOrder = []media.ContentType{
 }
 
 var mapTypeToRu = map[media.ContentType]string{
-	media.Movies: "Фильмы",
+	media.Movies: "Фильмы/Сериалы",
 	media.Music:  "Музыка",
 	media.Other:  "Другое",
 }
