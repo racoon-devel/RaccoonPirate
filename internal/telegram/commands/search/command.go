@@ -39,7 +39,7 @@ func (s *searchCommand) Do(ctx command.Context) (bool, []*communication.BotMessa
 	if s.query == "" {
 		s.query = ctx.Arguments.String()
 		msg := communication.BotMessage{
-			Text:          "Тип контента?",
+			Text:          "Тип контента для поиска?",
 			KeyboardStyle: communication.KeyboardStyle_Chat,
 			Buttons:       frontend.GetContentTypesButtonsRu(),
 		}
