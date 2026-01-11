@@ -47,9 +47,10 @@ func (b *Bot) Run() {
 	pirateCommands := commands.MakeRegisteredCommands(search.Command, add.Command, file.Command, library.Command, remove.Command, unlink.Command)
 
 	settings := bot.Settings{
-		Transport:  b.Transport,
-		Interlayer: command.Interlayer{},
-		CmdFactory: commands.NewDefaultFactory(pirateCommands),
+		Transport:       b.Transport,
+		Interlayer:      command.Interlayer{},
+		CmdFactory:      commands.NewDefaultFactory(pirateCommands),
+		FallbackCommand: "search",
 	}
 
 	b.c = cache.New(cacheItemTTL)
