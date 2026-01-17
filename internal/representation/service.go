@@ -32,12 +32,36 @@ func New(cfg config.Representation) Service {
 		return &disabledImpl{}
 	}
 
-	_ = os.RemoveAll(cfg.Directory)
+	prepareLayout(cfg)
 
 	return &serviceImpl{
 		l:    log.WithField("from", "representation"),
 		cfg:  cfg,
 		flat: !cfg.Categories.Alphabet && !cfg.Categories.Genres && !cfg.Categories.Type && !cfg.Categories.Year,
+	}
+}
+
+func prepareLayout(cfg config.Representation) {
+	_ = os.RemoveAll(cfg.Directory)
+
+	createOnStartupDirs := []string{moviesDirectory, musicDirectory, otherDirectory}
+
+	if cfg.Categories.Type {
+		createOnStartupDirs = append(createOnStartupDirs, filepath.Join(moviesDirectory, filmsDirectory))
+		createOnStartupDirs = append(createOnStartupDirs, filepath.Join(moviesDirectory, tvSeriesDirectory))
+	}
+	if cfg.Categories.Year {
+		createOnStartupDirs = append(createOnStartupDirs, filepath.Join(moviesDirectory, byYearDirectory))
+	}
+	if cfg.Categories.Alphabet {
+		createOnStartupDirs = append(createOnStartupDirs, filepath.Join(moviesDirectory, byAlphabetDirectory))
+	}
+	if cfg.Categories.Genres {
+		createOnStartupDirs = append(createOnStartupDirs, filepath.Join(moviesDirectory, byGenreDirectory))
+	}
+
+	for _, dir := range createOnStartupDirs {
+		_ = os.MkdirAll(filepath.Join(cfg.Directory, dir), mediaPerms)
 	}
 }
 
