@@ -4,7 +4,6 @@ import (
 	"bytes"
 	_ "embed"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -16,8 +15,9 @@ import (
 )
 
 type schemaContext struct {
-	source *string
-	schema *jsonschema.Schema
+	source  *string
+	schema  *jsonschema.Schema
+	migrate migrateFn
 }
 
 const currentConfigVersion = 2
@@ -29,7 +29,7 @@ var schemaSourceV1 string
 var schemaSourceV2 string
 
 var schemas = map[int]*schemaContext{
-	1: {source: &schemaSourceV1},
+	1: {source: &schemaSourceV1, migrate: migrateV1ToV2},
 	2: {source: &schemaSourceV2},
 }
 
@@ -112,8 +112,4 @@ func Load(destination string) (Config, error) {
 	}
 
 	return result, err
-}
-
-func migrateConfig(version uint, jsonRaw []byte) ([]byte, error) {
-	return nil, errors.ErrUnsupported
 }
