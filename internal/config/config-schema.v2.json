@@ -1,0 +1,301 @@
+{
+    "type": "object",
+    "required": [
+        "frontend",
+        "database",
+        "torrent",
+        "selector",
+        "application"
+    ],
+    "additionalProperties": false,
+    "properties": {
+        "frontend": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "http",
+                "telegram"
+            ],
+            "properties": {
+                "http": {
+                    "type": "object",
+                    "required": [
+                        "enabled",
+                        "host",
+                        "port"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                        "enabled": {
+                            "type": "boolean"
+                        },
+                        "host": {
+                            "type": "string"
+                        },
+                        "port": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    }
+                },
+                "telegram": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "enabled"
+                    ],
+                    "properties": {
+                        "enabled": {
+                            "type": "boolean"
+                        },
+                        "api-path": {
+                            "type": "string",
+                            "default": "/bot"
+                        }
+                    }
+                }
+            }
+        },
+        "api": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "host": {
+                    "type": "string",
+                    "default": "api.racoondev.top"
+                },
+                "port": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "default": 443
+                },
+                "scheme": {
+                    "type": "string",
+                    "enum": [
+                        "http",
+                        "https"
+                    ],
+                    "default": "https"
+                },
+                "domain": {
+                    "type": "string",
+                    "default": "public"
+                }
+            }
+        },
+        "application": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "config-version"
+            ],
+            "properties": {
+                "auto-update": {
+                    "type": "boolean",
+                    "default": "true"
+                },
+                "config-version": {
+                    "type": "integer"
+                }
+            }
+        },
+        "discovery": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "api-path": {
+                    "type": "string",
+                    "default": "/media"
+                },
+                "language": {
+                    "type": "string",
+                    "default": "ru",
+                    "enum": [
+                        "ru",
+                        "en"
+                    ]
+                }
+            }
+        },
+        "representation": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "directory"
+            ],
+            "properties": {
+                "enabled": {
+                    "type": "boolean",
+                    "default": "true"
+                },
+                "directory": {
+                    "type": "string"
+                },
+                "categories": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "type": {
+                            "type": "boolean",
+                            "default": "true"
+                        },
+                        "alphabet": {
+                            "type": "boolean",
+                            "default": "true"
+                        },
+                        "genres": {
+                            "type": "boolean",
+                            "default": "true"
+                        },
+                        "year": {
+                            "type": "boolean",
+                            "default": "true"
+                        }
+                    }
+                }
+            }
+        },
+        "database": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "path",
+                "driver"
+            ],
+            "properties": {
+                "path": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "driver": {
+                    "type": "string",
+                    "enum": [
+                        "json",
+                        "cloverdb"
+                    ]
+                }
+            }
+        },
+        "torrent": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "driver",
+                "builtin"
+            ],
+            "properties": {
+                "driver": {
+                    "type": "string",
+                    "enum": [
+                        "builtin",
+                        "torr-server"
+                    ]
+                },
+                "builtin": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "directory"
+                    ],
+                    "properties": {
+                        "directory": {
+                            "type": "string"
+                        },
+                        "limit": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "default": 0
+                        },
+                        "add-timeout": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "default": 60
+                        },
+                        "read-timeout": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "default": 60
+                        },
+                        "ttl": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "default": 24
+                        }
+                    }
+                },
+                "torr-server": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "url": {
+                            "type": "string",
+                            "default": "http://127.0.0.1:8090/"
+                        },
+                        "fusepath": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "selector": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "criterion": {
+                    "type": "string",
+                    "enum": [
+                        "quality",
+                        "fastest",
+                        "compact"
+                    ],
+                    "default": "quality"
+                },
+                "min-season-size": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "default": 1024
+                },
+                "max-season-size": {
+                    "type": "integer",
+                    "minimum": 1024,
+                    "default": 51200
+                },
+                "min-seeders-threshold": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "default": 50
+                },
+                "quality": {
+                    "type": "array",
+                    "uniqueItems": true,
+                    "items": {
+                        "type": "string",
+                        "enum": [
+                            "1080p",
+                            "720p",
+                            "2160p",
+                            "480p"
+                        ]
+                    },
+                    "default": [
+                        "1080p",
+                        "720p",
+                        "2160p",
+                        "480p"
+                    ]
+                },
+                "voices": {
+                    "type": "array",
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "minLength": 1
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

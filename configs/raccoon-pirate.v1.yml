@@ -28,7 +28,7 @@ discovery:
   # Affects to language of searchable content (ru or en)
   language: ru
 
-# Media storage options
+# Media storage options (deprecated)
 storage:
   # Directory for temporary store data (if path is relative - it is relative of user home)
   directory: ".raccoon-pirate/storage"

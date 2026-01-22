@@ -12,24 +12,27 @@ frontend:
 application:
   # Automatically check and perform updates
   auto-update: true
+  # Version of config file schema
+  config-version: 2
 
 # API remote server
 api:
   scheme: "https"
   host: "api.racoondev.top"
   port: 443
-  domain: public
+  domain: "public"
 
 # Torrents discovery settings
 discovery:
   # Relative path to discovery service on remote API server
   api-path: "/media"
+
   # Affects to language of searchable content (ru or en)
   language: ru
 
 database:
   # Path to database (if path is relative - it is relative of user home)
-  path: "/userdata/system/raccoon_pirate/storage/database.db"
+  path: ".raccoon-pirate/storage/database.db"
 
   # How to store database
   # enum: "json"|"cloverdb"
@@ -43,7 +46,7 @@ torrent:
   # Built-in implementation settings
   builtin:
     # Directory for temporary store data (if path is relative - it is relative of user home)
-    directory: "/userdata/system/raccoon_pirate/storage"
+    directory: ".raccoon-pirate/storage"
 
     # Limit size of the directory (Gb), 0 means no limitation
     limit: 5
@@ -63,7 +66,7 @@ torrent:
     url: "http://127.0.0.1:8090/"
 
     # Path to fuse directory, mounted by TorrServer
-    fusepath: "/userdata/system/torr_server/content"
+    fusepath: ""
 
 # Setup representation of registered content
 representation:
@@ -73,12 +76,12 @@ representation:
   enabled: true
 
   # Path to folder, which will contains structures hierarchy of symlinks to content (if path is relative - it is relative of user home)
-  directory: "/userdata/Media"
+  directory: "media"
 
   # Split content to categories
   categories:
     # For movies - split to Films and TvSeries folders
-    type: true 
+    type: true
 
     # Split content by A, B, C, D
     alphabet: true
@@ -89,13 +92,12 @@ representation:
     # Split by year of production
     year: true
 
-
 # Rules for ranking torrents (auto select option)
 selector:
   # Criterion for auto-selection (quality, fastest, compact)
   # (compact means many seasons in the one torrent)
   criterion: "quality"
-  
+
   # Minimum limit size for 1 season of TV series (Mb)
   min-season-size: 1024
 

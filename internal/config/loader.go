@@ -4,35 +4,57 @@ import (
 	"bytes"
 	_ "embed"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 
+	"github.com/apex/log"
 	"github.com/ghodss/yaml"
 	"github.com/santhosh-tekuri/jsonschema/v6"
 )
 
-//go:embed config-schema.json
-var schemaSource string
+type schemaContext struct {
+	source *string
+	schema *jsonschema.Schema
+}
 
-var schemaCompiler *jsonschema.Compiler
-var schema *jsonschema.Schema
+const currentConfigVersion = 2
+
+//go:embed config-schema.v1.json
+var schemaSourceV1 string
+
+//go:embed config-schema.v2.json
+var schemaSourceV2 string
+
+var schemas = map[int]*schemaContext{
+	1: {source: &schemaSourceV1},
+	2: {source: &schemaSourceV2},
+}
+
+type versionOnlyConfig struct {
+	Application struct {
+		ConfigVersion uint `json:"config-version"`
+	}
+}
 
 func init() {
-	schemaJs, err := jsonschema.UnmarshalJSON(strings.NewReader(schemaSource))
-	if err != nil {
-		panic(fmt.Sprintf("load embedded schema failed: %s", err))
+	for _, schemaCtx := range schemas {
+		schemaJs, err := jsonschema.UnmarshalJSON(strings.NewReader(*schemaCtx.source))
+		if err != nil {
+			panic(fmt.Sprintf("load embedded schema failed: %s", err))
+		}
+		compiler := jsonschema.NewCompiler()
+		if err := compiler.AddResource("config-schema.json", schemaJs); err != nil {
+			panic(fmt.Sprintf("load embedded schema failed: %s", err))
+		}
+		schemaCtx.schema = compiler.MustCompile("config-schema.json")
 	}
-
-	schemaCompiler = jsonschema.NewCompiler()
-	if err := schemaCompiler.AddResource("config-schema.json", schemaJs); err != nil {
-		panic(fmt.Sprintf("load embedded schema failed: %s", err))
-	}
-	schema = schemaCompiler.MustCompile("config-schema.json")
 }
 
 func Load(destination string) (Config, error) {
+	schema := schemas[currentConfigVersion]
 
 	content, err := os.ReadFile(destination)
 	if err != nil {
@@ -44,12 +66,28 @@ func Load(destination string) (Config, error) {
 		return Config{}, err
 	}
 
+	var versionProber versionOnlyConfig
+	_ = json.Unmarshal(jsonRaw, &versionProber)
+
+	version := &versionProber.Application.ConfigVersion
+	if *version != currentConfigVersion {
+		if *version == 0 {
+			*version = 1
+		}
+
+		log.Warnf("Deprecated version of config detected: %d, trying to migrate...", *version)
+		jsonRaw, err = migrateConfig(*version, jsonRaw)
+		if err != nil {
+			return Config{}, fmt.Errorf("migrate config failed: %w", err)
+		}
+	}
+
 	j, err := jsonschema.UnmarshalJSON(bytes.NewReader(jsonRaw))
 	if err != nil {
 		return Config{}, err
 	}
 
-	err = schema.Validate(j)
+	err = schema.schema.Validate(j)
 	if err != nil {
 		return Config{}, err
 	}
@@ -74,4 +112,8 @@ func Load(destination string) (Config, error) {
 	}
 
 	return result, err
+}
+
+func migrateConfig(version uint, jsonRaw []byte) ([]byte, error) {
+	return nil, errors.ErrUnsupported
 }
