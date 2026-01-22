@@ -21,12 +21,11 @@ type fileSchema struct {
 	Version  string
 }
 
-func newJsonDB(cfg config.Storage) (Database, error) {
-	dbPath := filepath.Join(cfg.Directory, "database.db")
-	db := jsonDb{path: dbPath}
-	_, err := os.Stat(dbPath)
+func newJsonDB(cfg config.Database) (Database, error) {
+	db := jsonDb{path: cfg.Path}
+	_, err := os.Stat(cfg.Path)
 	if os.IsNotExist(err) {
-		if err = os.MkdirAll(cfg.Directory, 0755); err != nil {
+		if err = os.MkdirAll(filepath.Dir(cfg.Path), 0755); err != nil {
 			return nil, err
 		}
 		if err = db.save(&fileSchema{}); err != nil {

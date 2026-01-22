@@ -25,7 +25,7 @@ func (r *removeCommand) Do(ctx command.Context) (bool, []*communication.BotMessa
 		return true, command.ReplyText(command.ParseArgumentsFailed)
 	}
 
-	if err := r.s.TorrentService.Remove(ctx.Arguments[0]); err != nil {
+	if err := r.s.TorrentService.Remove(ctx, ctx.Arguments[0]); err != nil {
 		r.l.Logf(logger.ErrorLevel, "Remove torrent failed: %s", err)
 		return true, command.ReplyText(command.SomethingWentWrong)
 	}

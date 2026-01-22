@@ -50,7 +50,7 @@ func (s *Server) deleteTorrentHandler(ctx *gin.Context) {
 	id := ctx.Param("id")
 	mediaType := ctx.Query("media-type")
 	l := s.l.WithField("id", id)
-	if err := s.TorrentService.Remove(id); err != nil {
+	if err := s.TorrentService.Remove(ctx, id); err != nil {
 		s.l.Errorf("Remove failed: %s", err)
 		displayError(ctx, http.StatusNotFound, "Remove torrent failed")
 		return

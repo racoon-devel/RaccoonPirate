@@ -45,7 +45,7 @@ func main() {
 	}
 	log.Infof("Config: %+v", conf)
 
-	dbase, err := db.Open(conf.Storage)
+	dbase, err := db.Open(conf.Database)
 	if err != nil {
 		log.Fatalf("Open database failed: %s", err)
 	}
@@ -83,7 +83,7 @@ func main() {
 	reprService := representation.New(conf.Representation)
 	defer reprService.Clean()
 
-	torrentService, err := torrents.New(conf.Storage, dbase, reprService)
+	torrentService, err := torrents.New(conf.Torrent, dbase, reprService)
 	if err != nil {
 		log.Fatalf("Start torrent service failed: %s", err)
 	}

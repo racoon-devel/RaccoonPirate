@@ -103,8 +103,12 @@ func Load(destination string) (Config, error) {
 		return Config{}, fmt.Errorf("get user home directory failed: %w", err)
 	}
 
-	if !filepath.IsAbs(result.Storage.Directory) {
-		result.Storage.Directory = filepath.Join(userHomeDir, result.Storage.Directory)
+	if !filepath.IsAbs(result.Database.Path) {
+		result.Database.Path = filepath.Join(userHomeDir, result.Database.Path)
+	}
+
+	if !filepath.IsAbs(result.Torrent.Builtin.Directory) {
+		result.Torrent.Builtin.Directory = filepath.Join(userHomeDir, result.Torrent.Builtin.Directory)
 	}
 
 	if !filepath.IsAbs(result.Representation.Directory) {

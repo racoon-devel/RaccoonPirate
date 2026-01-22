@@ -2,7 +2,6 @@ package db
 
 import (
 	"errors"
-	"path/filepath"
 
 	"github.com/RacoonMediaServer/rms-media-discovery/pkg/media"
 	"github.com/dgraph-io/badger/v3"
@@ -34,9 +33,8 @@ type cloverDb struct {
 	conn *clover.DB
 }
 
-func newCloverDB(cfg config.Storage) (Database, error) {
-	dbPath := filepath.Join(cfg.Directory, "database")
-	store, err := badgerstore.Open(badger.DefaultOptions(dbPath))
+func newCloverDB(cfg config.Database) (Database, error) {
+	store, err := badgerstore.Open(badger.DefaultOptions(cfg.Path))
 	if err != nil {
 		return nil, err
 	}

@@ -7,7 +7,6 @@ type Config struct {
 	Discovery      Discovery      `json:"discovery"`
 	Database       Database       `json:"database"`
 	Torrent        Torrent        `json:"torrent"`
-	Storage        Storage        `json:"-"` // TODO: Remove
 	Representation Representation `json:"representation"`
 	Selector       Selector       `json:"selector"`
 }
@@ -67,15 +66,6 @@ type Builtin struct {
 type TorrServer struct {
 	URL      string `json:"url"`
 	Fusepath string `json:"fusepath"`
-}
-
-type Storage struct {
-	Directory   string `json:"directory"`
-	Driver      string `json:"driver"`
-	Limit       uint   `json:"limit"`
-	AddTimeout  uint   `json:"add-timeout"`
-	ReadTimeout uint   `json:"read-timeout"`
-	TTL         uint   `json:"ttl"`
 }
 
 type Representation struct {

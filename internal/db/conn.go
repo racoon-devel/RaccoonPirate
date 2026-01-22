@@ -6,7 +6,7 @@ import (
 	"github.com/racoon-devel/raccoon-pirate/internal/config"
 )
 
-func Open(cfg config.Storage) (Database, error) {
+func Open(cfg config.Database) (Database, error) {
 	switch cfg.Driver {
 	case "cloverdb":
 		return newCloverDB(cfg)
