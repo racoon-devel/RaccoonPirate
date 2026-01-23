@@ -48,7 +48,8 @@ func (s *Server) postUploadHandler(ctx *gin.Context) {
 		return
 	}
 
-	if err = s.TorrentService.Add(ctx, &torrentRecord, buf); err != nil {
+	torrentRecord.Content = buf
+	if err = s.TorrentService.Add(ctx, &torrentRecord); err != nil {
 		s.l.Errorf("Add torrent failed %s", err)
 		displayError(ctx, http.StatusInternalServerError, "Add torrent failed")
 		return

@@ -3,6 +3,7 @@ package db
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -14,21 +15,23 @@ import (
 
 type jsonDb struct {
 	path string
+	bs   *byteStorage
 }
 
 type fileSchema struct {
-	Torrents map[string]*model.Torrent
-	Version  string
+	Torrents        map[string]*model.Torrent
+	Version         string
+	DatabaseVersion uint
 }
 
-func newJsonDB(cfg config.Database) (Database, error) {
-	db := jsonDb{path: cfg.Path}
+func newJsonDB(cfg config.Database, bs *byteStorage) (databaseInternal, error) {
+	db := jsonDb{path: cfg.Path, bs: bs}
 	_, err := os.Stat(cfg.Path)
 	if os.IsNotExist(err) {
 		if err = os.MkdirAll(filepath.Dir(cfg.Path), 0755); err != nil {
 			return nil, err
 		}
-		if err = db.save(&fileSchema{}); err != nil {
+		if err = db.save(&fileSchema{DatabaseVersion: currentDatabaseVersion}); err != nil {
 			return nil, err
 		}
 	}
@@ -71,7 +74,13 @@ func (d *jsonDb) LoadAllTorrents() ([]*model.Torrent, error) {
 	content, err := d.load()
 	result := make([]*model.Torrent, 0, len(content.Torrents))
 	for _, t := range content.Torrents {
-		result = append(result, t)
+		bytes, err := d.bs.Load(t.ID, "torrent")
+		if err == nil {
+			t.Content = bytes
+			result = append(result, t)
+		} else {
+			log.Warnf("Load torrent content for %s failed: %s, skip", err)
+		}
 	}
 	return result, err
 }
@@ -101,7 +110,12 @@ func (d *jsonDb) PutTorrent(t *model.Torrent) error {
 	if content.Torrents == nil {
 		content.Torrents = map[string]*model.Torrent{}
 	}
+
+	if err = d.bs.Add(t.ID, "torrent", t.Content); err != nil {
+		return fmt.Errorf("save torrent file failed: %w", err)
+	}
 	content.Torrents[t.ID] = t
+
 	return d.save(content)
 }
 
@@ -115,6 +129,9 @@ func (d *jsonDb) GetTorrent(id string) (*model.Torrent, error) {
 	if !ok {
 		return &model.Torrent{}, errors.New("not found")
 	}
+	if result.Content, err = d.bs.Load(id, "torrent"); err != nil {
+		return &model.Torrent{}, fmt.Errorf("load torrent file failed: %w", err)
+	}
 	return result, nil
 }
 
@@ -125,6 +142,7 @@ func (d *jsonDb) RemoveTorrent(id string) error {
 		return err
 	}
 	delete(content.Torrents, id)
+	_ = d.bs.Del(id, "torrent")
 	return d.save(content)
 }
 
@@ -144,5 +162,24 @@ func (d *jsonDb) SetVersion(version string) error {
 		return err
 	}
 	content.Version = version
+	return d.save(content)
+}
+
+// GetDatabaseVersion implements databaseInternal.
+func (d *jsonDb) GetDatabaseVersion() (uint, error) {
+	content, err := d.load()
+	if err != nil {
+		return 0, err
+	}
+	return content.DatabaseVersion, nil
+}
+
+// SetDatabaseVersion implements databaseInternal.
+func (d *jsonDb) SetDatabaseVersion(version uint) error {
+	content, err := d.load()
+	if err != nil {
+		return err
+	}
+	content.DatabaseVersion = version
 	return d.save(content)
 }

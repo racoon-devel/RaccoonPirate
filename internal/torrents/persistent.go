@@ -1,54 +1,49 @@
 package torrents
 
 import (
-	"errors"
-	"fmt"
-	"os"
-	"path/filepath"
-
 	"github.com/RacoonMediaServer/rms-torrent/v4/pkg/engine"
 )
 
 type persistentStorage struct {
-	torrentsDir string
-}
-
-func newPersistentStorage(torrentsDir string) (engine.TorrentDatabase, error) {
-	return &persistentStorage{torrentsDir: torrentsDir}, os.MkdirAll(torrentsDir, 0744)
+	dbase Database
 }
 
 // Add implements engine.TorrentDatabase.
 func (p persistentStorage) Add(t engine.TorrentRecord) error {
-	filePath := filepath.Join(p.torrentsDir, fmt.Sprintf("%s.torrent", t.ID))
-	return os.WriteFile(filePath, t.Content, 0744)
+	// content has already stored in the database
+	return nil
 }
 
 // Complete implements engine.TorrentDatabase.
 func (p persistentStorage) Complete(id string) error {
-	return errors.ErrUnsupported
+	// isn't actual for online torrent engines
+	return nil
 }
 
 // Del implements engine.TorrentDatabase.
 func (p persistentStorage) Del(id string) error {
-	filePath := filepath.Join(p.torrentsDir, fmt.Sprintf("%s.torrent", id))
-	return os.Remove(filePath)
+	// content managed by Database
+	return nil
 }
 
 // Load implements engine.TorrentDatabase.
 func (p persistentStorage) Load() ([]engine.TorrentRecord, error) {
-	result := []engine.TorrentRecord{}
-	files, err := os.ReadDir(p.torrentsDir)
+	torrents, err := p.dbase.LoadAllTorrents()
 	if err != nil {
 		return nil, err
 	}
-	for _, f := range files {
-		if !f.IsDir() {
-			data, err := os.ReadFile(filepath.Join(p.torrentsDir, f.Name()))
-			if err != nil {
-				return nil, err
-			}
-			result = append(result, engine.TorrentRecord{Content: data})
+
+	result := make([]engine.TorrentRecord, 0, len(torrents))
+	for _, t := range torrents {
+		record := engine.TorrentRecord{
+			TorrentDescription: engine.TorrentDescription{
+				ID:    t.ID,
+				Title: t.Title,
+			},
+			Content: t.Content,
 		}
+		result = append(result, record)
 	}
+
 	return result, nil
 }

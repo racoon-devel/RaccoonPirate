@@ -15,3 +15,9 @@ type Database interface {
 	SetVersion(version string) error
 	Close() error
 }
+
+type databaseInternal interface {
+	Database
+	GetDatabaseVersion() (uint, error)
+	SetDatabaseVersion(version uint) error
+}

@@ -30,8 +30,8 @@ func (c *fileCommand) Do(ctx command.Context) (bool, []*communication.BotMessage
 			return false, command.ReplyText("Неизвестный тип медиа")
 		}
 
-		record := model.Torrent{Type: contentType}
-		if err := c.s.TorrentService.Add(ctx, &record, c.content); err != nil {
+		record := model.Torrent{Type: contentType, Content: c.content}
+		if err := c.s.TorrentService.Add(ctx, &record); err != nil {
 			c.l.Logf(logger.ErrorLevel, "Add torrent failed: %s", err)
 			return true, command.ReplyText(command.SomethingWentWrong)
 		}

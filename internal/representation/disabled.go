@@ -10,7 +10,7 @@ func (d *disabledImpl) Clean() {
 }
 
 // Register implements Service.
-func (d *disabledImpl) Register(t *model.Torrent, pathToContent string) {
+func (d *disabledImpl) Register(t *model.Torrent, location string) {
 }
 
 // Unregister implements Service.

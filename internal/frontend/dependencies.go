@@ -20,7 +20,7 @@ type DiscoveryService interface {
 }
 
 type TorrentService interface {
-	Add(ctx context.Context, record *internalModel.Torrent, data []byte) error
+	Add(ctx context.Context, record *internalModel.Torrent) error
 	GetTorrentsList(mediaType media.ContentType) ([]*internalModel.Torrent, error)
 	Remove(ctx context.Context, torrent string) error
 }

@@ -2,6 +2,8 @@ package torrents
 
 import (
 	"context"
+	"fmt"
+	"sync"
 
 	"github.com/RacoonMediaServer/rms-media-discovery/pkg/media"
 	"github.com/RacoonMediaServer/rms-torrent/v4/pkg/engine"
@@ -15,26 +17,42 @@ type Service struct {
 	db  Database
 	rep RepresentationService
 	e   engine.TorrentEngine
+
+	wg     sync.WaitGroup
+	ctx    context.Context
+	cancel context.CancelFunc
 }
 
 func New(cfg config.Torrent, db Database, rep RepresentationService) (*Service, error) {
-	e, err := createTorrentEngine(cfg)
+	e, err := createTorrentEngine(cfg, db)
 	if err != nil {
 		return nil, err
 	}
 
-	// TODO: mount exists torrents to the representation
+	torrents, err := db.LoadAllTorrents()
+	if err != nil {
+		return nil, fmt.Errorf("load all torrents failed: %w", err)
+	}
 
-	return &Service{
+	srv := &Service{
 		db:  db,
 		l:   log.WithField("from", "torrent-service"),
 		rep: rep,
 		e:   e,
-	}, nil
+	}
+
+	srv.ctx, srv.cancel = context.WithCancel(context.Background())
+	srv.wg.Add(1)
+	go func() {
+		defer srv.wg.Done()
+		srv.trySyncTorrents(torrents)
+	}()
+
+	return srv, nil
 }
 
-func (s *Service) Add(ctx context.Context, record *model.Torrent, content []byte) error {
-	torrentInfo, err := s.e.Add(context.Background(), determineCategory(record), record.Title, nil, content)
+func (s *Service) Add(ctx context.Context, record *model.Torrent) error {
+	torrentInfo, err := s.e.Add(context.Background(), determineCategory(record), record.Title, nil, record.Content)
 	if err != nil {
 		return err
 	}
@@ -56,26 +74,25 @@ func (s *Service) GetTorrentsList(mediaType media.ContentType) ([]*model.Torrent
 }
 
 func (s *Service) Remove(ctx context.Context, id string) error {
-	// TODO: make consistent
 	t, err := s.db.GetTorrent(id)
 	if err != nil {
 		return err
 	}
 
-	if err := s.e.Remove(ctx, id); err != nil {
-		return err
+	if err = s.db.RemoveTorrent(id); err != nil {
+		return fmt.Errorf("remove torrent from db failed: %w", err)
+	}
+
+	if err = s.e.Remove(ctx, id); err != nil {
+		s.l.Warnf("Remove torrent from engine failed: %s", err)
 	}
 
 	s.rep.Unregister(t)
-	return s.db.RemoveTorrent(id)
-}
-
-func (s *Service) GetContentDirectory() string {
-	return ""
-	// TODO: find the right way for it
-	// return filepath.Join(s.layout.contentDir, mainRoute)
+	return nil
 }
 
 func (s *Service) Stop() {
+	s.cancel()
+	s.wg.Wait()
 	_ = s.e.Stop()
 }

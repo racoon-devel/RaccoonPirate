@@ -31,6 +31,9 @@ type Torrent struct {
 
 	// MovieType is required for organize movies to categories Films and TV-Series
 	MovieType model.MovieType
+
+	// Content stores the torrent file content
+	Content []byte `json:"-"`
 }
 
 func (t *Torrent) SetGenres(list []string) {

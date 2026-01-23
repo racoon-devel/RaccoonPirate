@@ -101,7 +101,8 @@ func (s *Server) addHandler(ctx *gin.Context) {
 		return
 	}
 
-	if err = s.TorrentService.Add(ctx, torrentRecord, content); err != nil {
+	torrentRecord.Content = content
+	if err = s.TorrentService.Add(ctx, torrentRecord); err != nil {
 		l.Errorf("Add torrent failed: %s", err)
 		displayError(ctx, http.StatusInternalServerError, "Add torrent failed")
 		return
@@ -198,7 +199,8 @@ func (s *Server) smartSelectMovieTorrent(ctx *gin.Context, l *log.Entry, mov *mo
 
 	somethingAdded := false
 	for _, torrent := range torrents {
-		if err = s.TorrentService.Add(ctx, torrentRecord, torrent); err != nil {
+		torrentRecord.Content = torrent
+		if err = s.TorrentService.Add(ctx, torrentRecord); err != nil {
 			l.Errorf("Add torrent failed: %s", err)
 		} else {
 			somethingAdded = true

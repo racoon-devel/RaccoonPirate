@@ -14,6 +14,6 @@ type Database interface {
 }
 
 type RepresentationService interface {
-	Register(t *model.Torrent, pathToContent string)
+	Register(t *model.Torrent, location string)
 	Unregister(t *model.Torrent)
 }

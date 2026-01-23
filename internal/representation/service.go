@@ -16,7 +16,7 @@ import (
 const mediaPerms = 0755
 
 type Service interface {
-	Register(t *model.Torrent, pathToContent string)
+	Register(t *model.Torrent, location string)
 	Unregister(t *model.Torrent)
 	Clean()
 }
@@ -95,7 +95,7 @@ func (s *serviceImpl) mapTorrent(t *model.Torrent) []string {
 	return result
 }
 
-func (s *serviceImpl) Register(t *model.Torrent, pathToContent string) {
+func (s *serviceImpl) Register(t *model.Torrent, location string) {
 	layout := s.mapTorrent(t)
 	symlink := escape(t.Title)
 	for _, dir := range layout {
@@ -104,8 +104,8 @@ func (s *serviceImpl) Register(t *model.Torrent, pathToContent string) {
 			s.l.Warnf("Create directory '%s' failed: %s", fullPath, err)
 			continue
 		}
-		if err := os.Symlink(pathToContent, filepath.Join(fullPath, symlink)); err != nil {
-			s.l.Warnf("Create symlink to '%s' failed: %s", pathToContent, err)
+		if err := os.Symlink(location, filepath.Join(fullPath, symlink)); err != nil {
+			s.l.Warnf("Create symlink to '%s' failed: %s", location, err)
 		}
 	}
 }

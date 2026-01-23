@@ -156,7 +156,8 @@ func (d *addCommand) addAutoMovie(ctx command.Context, opts selector.Options) (b
 
 	somethingAdded := false
 	for _, torrent := range torrents {
-		if err = d.s.TorrentService.Add(ctx, &d.torrentRecord, torrent); err != nil {
+		d.torrentRecord.Content = torrent
+		if err = d.s.TorrentService.Add(ctx, &d.torrentRecord); err != nil {
 			d.l.Logf(logger.ErrorLevel, "Add torrent failed: %s", err)
 		} else {
 			somethingAdded = true
@@ -234,7 +235,8 @@ func (d *addCommand) doWaitFile(ctx command.Context) (bool, []*communication.Bot
 		return false, command.ReplyText("Неверный формат файла")
 	}
 
-	if err := d.s.TorrentService.Add(ctx, &d.torrentRecord, ctx.Attachment.Content); err != nil {
+	d.torrentRecord.Content = ctx.Attachment.Content
+	if err := d.s.TorrentService.Add(ctx, &d.torrentRecord); err != nil {
 		d.l.Logf(logger.ErrorLevel, "Add torrent failed: %s", err)
 		return false, command.ReplyText(command.SomethingWentWrong)
 	}
@@ -263,7 +265,8 @@ func (d *addCommand) addTorrent(ctx context.Context, link string) (bool, []*comm
 		return false, command.ReplyText(command.SomethingWentWrong)
 	}
 
-	if err = d.s.TorrentService.Add(ctx, &d.torrentRecord, content); err != nil {
+	d.torrentRecord.Content = content
+	if err = d.s.TorrentService.Add(ctx, &d.torrentRecord); err != nil {
 		d.l.Logf(logger.ErrorLevel, "Add torrent failed: %s", err)
 		return false, command.ReplyText(command.SomethingWentWrong)
 	}

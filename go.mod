@@ -7,7 +7,7 @@ require (
 	github.com/RacoonMediaServer/rms-bot-client v1.6.4
 	github.com/RacoonMediaServer/rms-library v1.3.3-0.20250227110204-3b28525ababa
 	github.com/RacoonMediaServer/rms-media-discovery v1.8.0
-	github.com/RacoonMediaServer/rms-packages v1.16.6
+	github.com/RacoonMediaServer/rms-packages v1.16.7
 	github.com/anacrolix/missinggo/v2 v2.10.0
 	github.com/anacrolix/torrent v1.59.1
 	github.com/apex/log v1.9.0
@@ -29,7 +29,7 @@ require (
 	dario.cat/mergo v1.0.0 // indirect
 	github.com/Microsoft/go-winio v0.6.1 // indirect
 	github.com/ProtonMail/go-crypto v1.0.0 // indirect
-	github.com/RacoonMediaServer/rms-torrent/v4 v4.0.0 // indirect
+	github.com/RacoonMediaServer/rms-torrent/v4 v4.1.0 // indirect
 	github.com/RoaringBitmap/roaring v1.9.4 // indirect
 	github.com/ajwerner/btree v0.0.0-20211221152037-f427b3e689c0 // indirect
 	github.com/alecthomas/atomic v0.1.0-alpha2 // indirect

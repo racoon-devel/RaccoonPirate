@@ -2,6 +2,7 @@ package db
 
 import (
 	"errors"
+	"strconv"
 
 	"github.com/RacoonMediaServer/rms-media-discovery/pkg/media"
 	"github.com/dgraph-io/badger/v3"
@@ -17,6 +18,7 @@ const (
 	torrentsCollection = "torrents"
 	metaCollection     = "meta"
 	versionKey         = "Version"
+	dbVersionKey       = "DatabaseVersion"
 )
 
 var knownCollections = []string{
@@ -31,9 +33,10 @@ type metaInfo struct {
 
 type cloverDb struct {
 	conn *clover.DB
+	bs   *byteStorage
 }
 
-func newCloverDB(cfg config.Database) (Database, error) {
+func newCloverDB(cfg config.Database, bs *byteStorage) (databaseInternal, error) {
 	store, err := badgerstore.Open(badger.DefaultOptions(cfg.Path))
 	if err != nil {
 		return nil, err
@@ -59,7 +62,7 @@ func newCloverDB(cfg config.Database) (Database, error) {
 		}
 	}
 
-	return &cloverDb{conn: conn}, nil
+	return &cloverDb{conn: conn, bs: bs}, nil
 }
 
 func (d *cloverDb) PutTorrent(t *model.Torrent) error {
@@ -137,6 +140,22 @@ func (d *cloverDb) SetVersion(version string) error {
 		return errors.New("deserialize document failed")
 	}
 	d.conn.Delete(query.NewQuery(metaCollection).Where(query.Field("Key").Eq(versionKey)))
+	_, err := d.conn.InsertOne(metaCollection, doc)
+	return err
+}
+
+// GetDatabaseVersion implements databaseInternal.
+func (d *cloverDb) GetDatabaseVersion() (uint, error) {
+	panic("unimplemented") // TODO
+}
+
+// SetDatabaseVersion implements databaseInternal.
+func (d *cloverDb) SetDatabaseVersion(version uint) error {
+	doc := document.NewDocumentOf(&metaInfo{Key: dbVersionKey, Value: strconv.Itoa(int(version))})
+	if doc == nil {
+		return errors.New("deserialize document failed")
+	}
+	d.conn.Delete(query.NewQuery(metaCollection).Where(query.Field("Key").Eq(dbVersionKey)))
 	_, err := d.conn.InsertOne(metaCollection, doc)
 	return err
 }
