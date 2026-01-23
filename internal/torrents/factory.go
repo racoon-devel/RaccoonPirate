@@ -2,6 +2,7 @@ package torrents
 
 import (
 	"fmt"
+	"path/filepath"
 
 	"github.com/RacoonMediaServer/rms-torrent/v4/pkg/engine"
 	"github.com/RacoonMediaServer/rms-torrent/v4/pkg/engine/online/builtin"
@@ -19,7 +20,12 @@ func createTorrentEngine(cfg config.Torrent) (engine.TorrentEngine, error) {
 			ReadTimeout: cfg.Builtin.ReadTimeout,
 			TTL:         cfg.Builtin.TTL,
 		}
-		return builtin.NewEngine(engineCfg, &engine.VoidDatabase{})
+		torrentsDir := filepath.Join(engineCfg.Directory, "torrents")
+		storage, err := newPersistentStorage(torrentsDir)
+		if err != nil {
+			return nil, fmt.Errorf("create directory for torrents failed: %w", err)
+		}
+		return builtin.NewEngine(engineCfg, storage)
 	case "torr-server":
 		engineCfg := torrserver.Config{
 			URL:      cfg.TorrServer.URL,
