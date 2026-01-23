@@ -35,7 +35,7 @@ func (u *Updater) doSelfUpdate() (bool, error) {
 	return true, nil
 }
 
-func (u *Updater) updateStorage() error {
+func (u *Updater) AutoMigration() error {
 	previousVersion, err := u.Storage.GetVersion()
 	if err != nil {
 		return fmt.Errorf("failed to load previous version: %s", err)
@@ -44,7 +44,7 @@ func (u *Updater) updateStorage() error {
 		return u.Storage.SetVersion(u.CurrentVersion)
 	}
 	if previousVersion != u.CurrentVersion {
-		// perfoming storage update
+		// performing storage migration
 		return u.Storage.SetVersion(u.CurrentVersion)
 	}
 	return nil
@@ -53,10 +53,6 @@ func (u *Updater) updateStorage() error {
 func (u *Updater) TryUpdate() (updated bool, err error) {
 	if u.CurrentVersion == "0.0.0" {
 		return
-	}
-
-	if err := u.updateStorage(); err != nil {
-		log.Warnf("Update database failed: %s", err)
 	}
 
 	u.executablePath, err = os.Executable()

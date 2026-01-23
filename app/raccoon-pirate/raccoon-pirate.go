@@ -51,12 +51,12 @@ func main() {
 	}
 	defer dbase.Close()
 
-	if conf.Application.AutoUpdate {
-		u := updater.Updater{
-			CurrentVersion: Version,
-			Storage:        dbase,
-		}
+	u := updater.Updater{
+		CurrentVersion: Version,
+		Storage:        dbase,
+	}
 
+	if conf.Application.AutoUpdate {
 		updated, err := u.TryUpdate()
 		if err != nil {
 			log.Warnf("Auto update failed: %s", err)
@@ -67,6 +67,10 @@ func main() {
 				log.Fatalf("Restart application after update failed: %s", err)
 			}
 		}
+	}
+
+	if err = u.AutoMigration(); err != nil {
+		log.Warnf("Auto migration failed: %s", err)
 	}
 
 	printRegisteredTorrents(dbase)
