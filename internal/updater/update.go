@@ -6,7 +6,6 @@ import (
 	"os/exec"
 
 	"github.com/apex/log"
-	"github.com/blang/semver"
 	"github.com/racoon-devel/raccoon-pirate/internal/config"
 	"github.com/racoon-devel/raccoon-pirate/internal/db"
 	"github.com/rhysd/go-github-selfupdate/selfupdate"
@@ -20,7 +19,7 @@ type Updater struct {
 }
 
 func (u *Updater) doSelfUpdate() (bool, error) {
-	v, err := semver.Parse(u.CurrentVersion[1:])
+	v, err := ParseVersion(u.CurrentVersion)
 	if err != nil {
 		return false, fmt.Errorf("parse current version failed: %w", err)
 	}
@@ -42,12 +41,15 @@ func (u *Updater) AutoMigration(dbase db.Database, cfg config.Config) error {
 	if err != nil {
 		return fmt.Errorf("failed to load previous version: %s", err)
 	}
-	if previousVersion == "" || previousVersion == "0.0.0" {
+
+	// just for developing
+	if previousVersion == "" || previousVersion == "v0.0.0" || u.CurrentVersion == "v0.0.0" {
 		return u.Storage.SetVersion(u.CurrentVersion)
 	}
 	if previousVersion != u.CurrentVersion {
 		// performing storage migration
-		v, err := semver.Parse(previousVersion)
+		log.Warnf("Run migration from previous version...")
+		v, err := ParseVersion(previousVersion)
 		if err != nil {
 			return fmt.Errorf("parse version stored in the metadata failed: %w", err)
 		}
@@ -63,7 +65,7 @@ func (u *Updater) AutoMigration(dbase db.Database, cfg config.Config) error {
 }
 
 func (u *Updater) TryUpdate() (updated bool, err error) {
-	if u.CurrentVersion == "0.0.0" {
+	if u.CurrentVersion == "v0.0.0" {
 		return
 	}
 

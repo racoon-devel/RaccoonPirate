@@ -10,7 +10,6 @@ import (
 
 	"github.com/anacrolix/torrent/metainfo"
 	"github.com/apex/log"
-	"github.com/blang/semver"
 	"github.com/racoon-devel/raccoon-pirate/internal/config"
 	"github.com/racoon-devel/raccoon-pirate/internal/db"
 )
@@ -29,7 +28,7 @@ var migrations = map[uint64]migrateFn{
 }
 
 func (u Updater) migrate(m *migrationRequest) error {
-	currentVersion, err := semver.Parse(u.CurrentVersion)
+	currentVersion, err := ParseVersion(u.CurrentVersion)
 	if err != nil {
 		return fmt.Errorf("parse built-in version failed: %w", err)
 	}
@@ -42,7 +41,7 @@ func (u Updater) migrate(m *migrationRequest) error {
 		return errors.New("migration from future versions is unsupported")
 	}
 
-	for version := m.minor; m.minor < currentVersion.Minor; version++ {
+	for version := m.minor; version < currentVersion.Minor; version++ {
 		migrationFn, ok := migrations[version]
 		if !ok {
 			continue

@@ -24,7 +24,7 @@ import (
 	"github.com/rhysd/go-github-selfupdate/selfupdate"
 )
 
-var Version = "0.0.0"
+var Version = "v0.0.0"
 
 func main() {
 	log.Infof("raccoon-pirate %s [ %s ]", Version, runtime.GOARCH)
@@ -70,7 +70,7 @@ func main() {
 	}
 
 	if err = u.AutoMigration(dbase, conf); err != nil {
-		log.Warnf("Auto migration failed: %s", err)
+		log.Fatalf("Auto migration failed: %s", err)
 	}
 
 	printRegisteredTorrents(dbase)
