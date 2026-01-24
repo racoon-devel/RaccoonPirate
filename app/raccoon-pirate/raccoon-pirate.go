@@ -69,7 +69,7 @@ func main() {
 		}
 	}
 
-	if err = u.AutoMigration(); err != nil {
+	if err = u.AutoMigration(dbase, conf); err != nil {
 		log.Warnf("Auto migration failed: %s", err)
 	}
 

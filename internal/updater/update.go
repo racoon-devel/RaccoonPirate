@@ -7,6 +7,8 @@ import (
 
 	"github.com/apex/log"
 	"github.com/blang/semver"
+	"github.com/racoon-devel/raccoon-pirate/internal/config"
+	"github.com/racoon-devel/raccoon-pirate/internal/db"
 	"github.com/rhysd/go-github-selfupdate/selfupdate"
 )
 
@@ -35,7 +37,7 @@ func (u *Updater) doSelfUpdate() (bool, error) {
 	return true, nil
 }
 
-func (u *Updater) AutoMigration() error {
+func (u *Updater) AutoMigration(dbase db.Database, cfg config.Config) error {
 	previousVersion, err := u.Storage.GetVersion()
 	if err != nil {
 		return fmt.Errorf("failed to load previous version: %s", err)
@@ -45,7 +47,17 @@ func (u *Updater) AutoMigration() error {
 	}
 	if previousVersion != u.CurrentVersion {
 		// performing storage migration
-		return u.Storage.SetVersion(u.CurrentVersion)
+		v, err := semver.Parse(previousVersion)
+		if err != nil {
+			return fmt.Errorf("parse version stored in the metadata failed: %w", err)
+		}
+		req := migrationRequest{
+			major: v.Major,
+			minor: v.Minor,
+			dbase: dbase,
+			cfg:   cfg,
+		}
+		return u.migrate(&req)
 	}
 	return nil
 }
