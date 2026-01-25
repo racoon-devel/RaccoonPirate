@@ -28,7 +28,7 @@ func (p persistentStorage) Del(id string) error {
 
 // Load implements engine.TorrentDatabase.
 func (p persistentStorage) Load() ([]engine.TorrentRecord, error) {
-	torrents, err := p.dbase.LoadAllTorrents()
+	torrents, err := p.dbase.LoadTorrents(true)
 	if err != nil {
 		return nil, err
 	}

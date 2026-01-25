@@ -33,7 +33,7 @@ type Torrent struct {
 	MovieType model.MovieType
 
 	// Content stores the torrent file content
-	Content []byte `json:"-"`
+	Content []byte `json:"-" msgpack:"-"`
 }
 
 func (t *Torrent) SetGenres(list []string) {

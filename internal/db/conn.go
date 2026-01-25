@@ -17,7 +17,7 @@ func Open(cfg config.Database) (Database, error) {
 	var dbase databaseInternal
 	var err error
 	switch cfg.Driver {
-	case "cloverdb":
+	case "bbolt":
 		dbase, err = newBoltDB(cfg)
 	case "json":
 		bs, err := newByteStorage(storageDir)

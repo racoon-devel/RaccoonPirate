@@ -2,12 +2,10 @@ package db
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 
-	"github.com/RacoonMediaServer/rms-media-discovery/pkg/media"
 	"github.com/apex/log"
 	"github.com/racoon-devel/raccoon-pirate/internal/config"
 	"github.com/racoon-devel/raccoon-pirate/internal/model"
@@ -70,35 +68,21 @@ func (d *jsonDb) save(content *fileSchema) error {
 }
 
 // LoadAllTorrents implements Database.
-func (d *jsonDb) LoadAllTorrents() ([]*model.Torrent, error) {
+func (d *jsonDb) LoadTorrents(includeContent bool) ([]*model.Torrent, error) {
 	content, err := d.load()
 	result := make([]*model.Torrent, 0, len(content.Torrents))
 	for _, t := range content.Torrents {
-		bytes, err := d.bs.Load(t.ID, "torrent")
-		if err == nil {
+		if includeContent {
+			bytes, err := d.bs.Load(t.ID, "torrent")
+			if err != nil {
+				log.Warnf("Load torrent content for %s failed: %s, skip", err)
+				continue
+			}
 			t.Content = bytes
-			result = append(result, t)
-		} else {
-			log.Warnf("Load torrent content for %s failed: %s, skip", err)
 		}
+		result = append(result, t)
 	}
 	return result, err
-}
-
-// LoadTorrents implements Database.
-func (d *jsonDb) LoadTorrents(mediaType media.ContentType) ([]*model.Torrent, error) {
-	list, err := d.LoadAllTorrents()
-	if err != nil {
-		return list, err
-	}
-
-	result := make([]*model.Torrent, 0, len(list))
-	for _, t := range list {
-		if t.Type == mediaType {
-			result = append(result, t)
-		}
-	}
-	return result, nil
 }
 
 // PutTorrent implements Database.
@@ -127,7 +111,7 @@ func (d *jsonDb) GetTorrent(id string) (*model.Torrent, error) {
 	}
 	result, ok := content.Torrents[id]
 	if !ok {
-		return &model.Torrent{}, errors.New("not found")
+		return &model.Torrent{}, ErrNotFound
 	}
 	if result.Content, err = d.bs.Load(id, "torrent"); err != nil {
 		return &model.Torrent{}, fmt.Errorf("load torrent file failed: %w", err)

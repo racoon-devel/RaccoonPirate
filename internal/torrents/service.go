@@ -29,7 +29,7 @@ func New(cfg config.Torrent, db Database, rep RepresentationService) (*Service, 
 		return nil, err
 	}
 
-	torrents, err := db.LoadAllTorrents()
+	torrents, err := db.LoadTorrents(true)
 	if err != nil {
 		return nil, fmt.Errorf("load all torrents failed: %w", err)
 	}
@@ -70,7 +70,19 @@ func (s *Service) Add(ctx context.Context, record *model.Torrent) error {
 }
 
 func (s *Service) GetTorrentsList(mediaType media.ContentType) ([]*model.Torrent, error) {
-	return s.db.LoadTorrents(mediaType)
+	torrents, err := s.db.LoadTorrents(false)
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]*model.Torrent, 0, len(torrents))
+	for _, t := range torrents {
+		if t.Type == mediaType {
+			result = append(result, t)
+		}
+	}
+
+	return result, nil
 }
 
 func (s *Service) Remove(ctx context.Context, id string) error {

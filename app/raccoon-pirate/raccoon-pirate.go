@@ -135,7 +135,7 @@ func main() {
 
 func printRegisteredTorrents(dbase db.Database) {
 	out := "Registered torrents:\n"
-	list, err := dbase.LoadAllTorrents()
+	list, err := dbase.LoadTorrents(false)
 	if err != nil {
 		log.Fatalf("Retrieve torrents list failed: %s", err)
 	}
