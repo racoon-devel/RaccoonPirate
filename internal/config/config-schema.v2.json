@@ -171,7 +171,7 @@
                     "type": "string",
                     "enum": [
                         "json",
-                        "cloverdb"
+                        "bbolt"
                     ]
                 }
             }

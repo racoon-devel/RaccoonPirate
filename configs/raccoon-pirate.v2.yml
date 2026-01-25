@@ -35,8 +35,8 @@ database:
   path: ".raccoon-pirate/storage/database.db"
 
   # How to store database
-  # enum: "json"|"cloverdb"
-  driver: "json"
+  # enum: "json"|"bbolt"
+  driver: "bbolt"
 
 torrent:
   # Torrent engine implementation

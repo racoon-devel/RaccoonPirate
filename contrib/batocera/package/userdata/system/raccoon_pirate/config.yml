@@ -33,7 +33,7 @@ database:
 
   # How to store database
   # enum: "json"|"cloverdb"
-  driver: "json"
+  driver: "bbolt"
 
 torrent:
   # Torrent engine implementation

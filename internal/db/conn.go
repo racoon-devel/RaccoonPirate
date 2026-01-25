@@ -14,16 +14,16 @@ const byteStorageDir = "torrents"
 func Open(cfg config.Database) (Database, error) {
 	storageDir := filepath.Join(filepath.Dir(cfg.Path), byteStorageDir)
 
-	bs, err := newByteStorage(storageDir)
-	if err != nil {
-		return nil, fmt.Errorf("create byte storage directory failed: %w", err)
-	}
-
 	var dbase databaseInternal
+	var err error
 	switch cfg.Driver {
 	case "cloverdb":
-		dbase, err = newCloverDB(cfg, bs)
+		dbase, err = newBoltDB(cfg)
 	case "json":
+		bs, err := newByteStorage(storageDir)
+		if err != nil {
+			return nil, fmt.Errorf("create byte storage directory failed: %w", err)
+		}
 		dbase, err = newJsonDB(cfg, bs)
 	default:
 		return nil, fmt.Errorf("database driver '%s' is not implemented", cfg.Driver)
